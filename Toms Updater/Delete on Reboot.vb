@@ -1,5 +1,5 @@
 ﻿Module Delete_on_Reboot
-    Private Declare Auto Function MoveFileEx Lib "kernel32.dll" (ByVal lpExistingFileName As String, ByVal lpNewFileName As String, ByVal dwFlags As Int32) As Boolean
+    Private Declare Auto Function MoveFileEx Lib "kernel32.dll" (lpExistingFileName As String, lpNewFileName As String, dwFlags As Int32) As Boolean
 
     Public Sub deleteFileAtReboot(fileName As String, Optional askForReboot As Boolean = True)
         MoveFileEx(fileName, vbNullString, 4)
