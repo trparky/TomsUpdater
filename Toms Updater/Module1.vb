@@ -6,10 +6,7 @@ Module Module1
     Private strMessageBoxTitleText As String = "Tom's Updater"
 
     Private Sub RunNGEN(strFileName As String)
-        ' ===============================
-        ' == Begin code that runs NGEN ==
-        ' ===============================
-        'Console.Write("Removing old .NET Cached Compiled Assembly...")
+        Console.Write("Removing old .NET Cached Compiled Assembly...")
 
         Dim psi As New ProcessStartInfo With {
             .UseShellExecute = True,
@@ -20,6 +17,10 @@ Module Module1
 
         Dim proc As Process = Process.Start(psi)
         proc.WaitForExit()
+
+        Console.WriteLine(" Done.")
+
+        Console.Write("Installing new .NET Cached Compiled Assembly...")
 
         psi = New ProcessStartInfo With {
             .UseShellExecute = True,
@@ -38,6 +39,10 @@ Module Module1
     End Sub
 
     Sub Main()
+        Console.WriteLine("-----------------------")
+        Console.WriteLine("Starting Tom's Updater.")
+        Console.WriteLine("-----------------------")
+
         Dim ConsoleApplicationBase As New ApplicationServices.ConsoleApplicationBase
         Dim strProgramCode As String = Nothing
         Dim strProgramEXE As String = Nothing
@@ -58,24 +63,27 @@ Module Module1
                 If String.Equals(strProgramCode, "hasher", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Hasher.zip"
                     strProgramEXE = "Hasher.exe"
+                    Console.WriteLine("INFO: Updating Hasher.")
                 ElseIf String.Equals(strProgramCode, "simpleqr", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "SimpleQR.zip"
                     strProgramEXE = "SimpleQR.exe"
+                    Console.WriteLine("INFO: Updating SimpleQR.")
                 ElseIf String.Equals(strProgramCode, "startprogramewithnouac", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Start Program at Startup without UAC Prompt.zip"
                     strProgramEXE = "Start Program at Startup without UAC Prompt.exe"
+                    Console.WriteLine("INFO: Updating Start Program at Startup without UAC Prompt.")
+                ElseIf String.Equals(strProgramCode, "dnsoverhttps", StringComparison.OrdinalIgnoreCase) Then
+                    strZIPFile = "DNS Over HTTPS Well Known Servers.zip"
+                    strProgramEXE = "DNS Over HTTPS Well Known Servers.exe"
+                    Console.WriteLine("INFO: Updating DNS Over HTTPS Well Known Servers.")
                 ElseIf String.Equals(strProgramCode, "freesyslog", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Free SysLog.zip"
                     strProgramEXE = "Free SysLog.exe"
-                ElseIf String.Equals(strProgramCode, "dnsoverhttps", StringComparison.OrdinalIgnoreCase) Then
-                    strZIPFile = "DNS Over HTTPS Well Known Servers.zip"
-                    strProgramEXE = "DNS Over HTTPS Well Known Servers.exe"
-                ElseIf String.Equals(strProgramCode, "dnsoverhttps", StringComparison.OrdinalIgnoreCase) Then
-                    strZIPFile = "DNS Over HTTPS Well Known Servers.zip"
-                    strProgramEXE = "DNS Over HTTPS Well Known Servers.exe"
+                    Console.WriteLine("INFO: Updating Free SysLog.")
                 Else
                     MsgBox("Invalid Program Code!", MsgBoxStyle.Critical, strMessageBoxTitleText)
                     Process.GetCurrentProcess.Kill()
+                    Console.WriteLine("ERROR: Invalid program code.")
                     Exit Sub
                 End If
             End If
@@ -86,33 +94,50 @@ Module Module1
             Dim httpHelper As HttpHelper = CreateNewHTTPHelperObject()
 
             Using memoryStream As New MemoryStream()
+                Console.Write($"INFO: Downloading ZIP package file {Chr(34)}{strZIPFile}{Chr(34)}...")
                 If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
                     MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
+                    Console.WriteLine(" Something went wrong, update process aborted.")
                     Process.GetCurrentProcess.Kill()
                     Exit Sub
                 End If
+                Console.WriteLine(" Done.")
 
+                Console.Write($"INFO: Verifying ZIP package file {Chr(34)}{strZIPFile}{Chr(34)}...")
                 If Not VerifyChecksum(programZipFileSHA256URL, memoryStream, httpHelper, True) Then
                     MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
+                    Console.WriteLine(" Something went wrong, verification failed; update process aborted.")
                     Process.GetCurrentProcess.Kill()
                     Exit Sub
                 End If
+                Console.WriteLine(" Done.")
 
                 memoryStream.Position = 0
 
                 Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
                     For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
+                        Console.Write($"INFO: Deleting file {Chr(34)}{fileInZIP.Name}{Chr(34)}...")
                         File.Delete(Path.Combine(currentLocation, fileInZIP.Name))
+                        Console.WriteLine(" Done.")
 
+                        Console.Write($"INFO: Extracting and writing file {Chr(34)}{fileInZIP.Name}{Chr(34)}...")
                         Using fileStream As New FileStream(Path.Combine(currentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
                             fileInZIP.Open.CopyTo(fileStream)
                         End Using
+                        Console.WriteLine(" Done.")
                     Next
                 End Using
             End Using
 
             RunNGEN(strProgramEXE)
+
+            Console.WriteLine("Update process complete.")
+
             Process.Start(Path.Combine(currentLocation, strProgramEXE))
+
+            Console.WriteLine("Starting new instance updated program.")
+            Console.WriteLine("You may now close this console window.")
+
             Process.GetCurrentProcess.Kill()
         End If
     End Sub
