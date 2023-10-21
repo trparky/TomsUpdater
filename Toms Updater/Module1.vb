@@ -83,7 +83,6 @@ Module Module1
                     Console.WriteLine("INFO: Updating Free SysLog.")
                 Else
                     MsgBox("Invalid Program Code!", MsgBoxStyle.Critical, strMessageBoxTitleText)
-                    Process.GetCurrentProcess.Kill()
                     Console.WriteLine("ERROR: Invalid program code.")
                     Exit Sub
                 End If
@@ -103,7 +102,6 @@ Module Module1
                 If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
                     MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
                     Console.WriteLine(" Something went wrong, update process aborted.")
-                    Process.GetCurrentProcess.Kill()
                     Exit Sub
                 End If
                 Console.WriteLine(" Done.")
@@ -112,7 +110,6 @@ Module Module1
                 If Not VerifyChecksum(programZipFileSHA256URL, memoryStream, httpHelper, True) Then
                     MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
                     Console.WriteLine(" Something went wrong, verification failed; update process aborted.")
-                    Process.GetCurrentProcess.Kill()
                     Exit Sub
                 End If
                 Console.WriteLine(" Done.")
@@ -139,8 +136,6 @@ Module Module1
 
             Console.WriteLine("Starting new instance updated program.")
             Console.WriteLine("You may now close this console window.")
-
-            Process.GetCurrentProcess.Kill()
         End If
     End Sub
 
