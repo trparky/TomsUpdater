@@ -120,12 +120,9 @@ Module Module1
 
                 Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
                     For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
-                        Console.Write($"INFO: Deleting file {Chr(34)}{fileInZIP.Name}{Chr(34)}...")
-                        File.Delete(Path.Combine(currentLocation, fileInZIP.Name))
-                        Console.WriteLine(" Done.")
-
                         Console.Write($"INFO: Extracting and writing file {Chr(34)}{fileInZIP.Name}{Chr(34)}...")
                         Using fileStream As New FileStream(Path.Combine(currentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
+                            fileStream.SetLength(0)
                             fileInZIP.Open.CopyTo(fileStream)
                         End Using
                         Console.WriteLine(" Done.")
