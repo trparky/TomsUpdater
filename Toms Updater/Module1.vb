@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
@@ -130,7 +131,7 @@ Module Module1
                 End Using
             End Using
 
-            RunNGEN(strProgramEXE)
+            If AreWeAnAdministrator() Then RunNGEN(strProgramEXE)
 
             Console.WriteLine("Update process complete.")
 
@@ -205,6 +206,14 @@ Module Module1
             Return Nothing
         Catch ex As Exception
             Return Nothing
+        End Try
+    End Function
+
+    Private Function AreWeAnAdministrator() As Boolean
+        Try
+            Return New WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator)
+        Catch ex As Exception
+            Return False
         End Try
     End Function
 
