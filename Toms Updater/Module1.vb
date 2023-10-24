@@ -7,7 +7,10 @@ Module Module1
     Private strMessageBoxTitleText As String = "Tom's Updater"
 
     Private Sub RunNGEN(strFileName As String)
-        Console.Write("Removing old .NET Cached Compiled Assembly...")
+        Console.ForegroundColor = ConsoleColor.Green
+        Console.Write("INFO:")
+        Console.ResetColor()
+        Console.Write(" Removing old .NET Cached Compiled Assembly...")
 
         Dim psi As New ProcessStartInfo With {
             .UseShellExecute = True,
@@ -21,11 +24,14 @@ Module Module1
 
         Console.WriteLine(" Done.")
 
-        Console.Write("Installing new .NET Cached Compiled Assembly...")
+        Console.ForegroundColor = ConsoleColor.Green
+        Console.Write("INFO:")
+        Console.ResetColor()
+        Console.Write(" Installing new .NET Cached Compiled Assembly...")
 
         psi = New ProcessStartInfo With {
             .UseShellExecute = True,
-            .FileName = IO.Path.Combine(Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "ngen.exe"),
+            .FileName = Path.Combine(Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "ngen.exe"),
             .Arguments = $"install ""{strFileName}""",
             .WindowStyle = ProcessWindowStyle.Hidden
         }
@@ -40,9 +46,11 @@ Module Module1
     End Sub
 
     Sub Main()
+        Console.ForegroundColor = ConsoleColor.Green
         Console.WriteLine("-----------------------")
         Console.WriteLine("Starting Tom's Updater.")
         Console.WriteLine("-----------------------")
+        Console.ResetColor()
 
         Dim ConsoleApplicationBase As New ApplicationServices.ConsoleApplicationBase
         Dim strProgramCode As String = Nothing
@@ -64,26 +72,50 @@ Module Module1
                 If String.Equals(strProgramCode, "hasher", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Hasher.zip"
                     strProgramEXE = "Hasher.exe"
-                    Console.WriteLine("INFO: Updating Hasher.")
+
+                    Console.ForegroundColor = ConsoleColor.Green
+                    Console.Write("INFO:")
+                    Console.ResetColor()
+                    Console.WriteLine(" Updating Hasher.")
                 ElseIf String.Equals(strProgramCode, "simpleqr", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "SimpleQR.zip"
                     strProgramEXE = "SimpleQR.exe"
-                    Console.WriteLine("INFO: Updating SimpleQR.")
+
+                    Console.ForegroundColor = ConsoleColor.Green
+                    Console.Write("INFO:")
+                    Console.ResetColor()
+                    Console.WriteLine(" Updating SimpleQR.")
                 ElseIf String.Equals(strProgramCode, "startprogramewithnouac", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Start Program at Startup without UAC Prompt.zip"
                     strProgramEXE = "Start Program at Startup without UAC Prompt.exe"
-                    Console.WriteLine("INFO: Updating Start Program at Startup without UAC Prompt.")
+
+                    Console.ForegroundColor = ConsoleColor.Green
+                    Console.Write("INFO:")
+                    Console.ResetColor()
+                    Console.WriteLine(" Updating Start Program at Startup without UAC Prompt.")
                 ElseIf String.Equals(strProgramCode, "dnsoverhttps", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "DNS Over HTTPS Well Known Servers.zip"
                     strProgramEXE = "DNS Over HTTPS Well Known Servers.exe"
-                    Console.WriteLine("INFO: Updating DNS Over HTTPS Well Known Servers.")
+
+                    Console.ForegroundColor = ConsoleColor.Green
+                    Console.Write("INFO:")
+                    Console.ResetColor()
+                    Console.WriteLine(" Updating DNS Over HTTPS Well Known Servers.")
                 ElseIf String.Equals(strProgramCode, "freesyslog", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Free SysLog.zip"
                     strProgramEXE = "Free SysLog.exe"
-                    Console.WriteLine("INFO: Updating Free SysLog.")
+
+                    Console.ForegroundColor = ConsoleColor.Green
+                    Console.Write("INFO:")
+                    Console.ResetColor()
+                    Console.WriteLine(" Updating Free SysLog.")
                 Else
+                    Console.ForegroundColor = ConsoleColor.Red
+                    Console.Write("ERROR:")
+                    Console.ResetColor()
+                    Console.WriteLine(" Invalid program code.")
+
                     MsgBox("Invalid Program Code!", MsgBoxStyle.Critical, strMessageBoxTitleText)
-                    Console.WriteLine("ERROR: Invalid program code.")
                     Exit Sub
                 End If
             End If
@@ -93,36 +125,60 @@ Module Module1
 
             Dim httpHelper As HttpHelper = CreateNewHTTPHelperObject()
 
-            Console.Write($"INFO: Killing process for {strProgramEXE}...")
+            Console.ForegroundColor = ConsoleColor.Green
+            Console.Write("INFO:")
+            Console.ResetColor()
+            Console.Write($" Killing Process for {strProgramEXE}...")
+
             SearchForProcessAndKillIt(strProgramEXE, False)
+
             Console.WriteLine(" Done.")
 
             Using memoryStream As New MemoryStream()
-                Console.Write($"INFO: Downloading ZIP package file ""{strZIPFile}""...")
+                Console.ForegroundColor = ConsoleColor.Green
+                Console.Write("INFO:")
+                Console.ResetColor()
+                Console.Write($" Downloading ZIP package file ""{strZIPFile}""...")
+
                 If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
                     MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
+                    Console.ForegroundColor = ConsoleColor.Red
                     Console.WriteLine(" Something went wrong, update process aborted.")
+                    Console.ResetColor()
                     Exit Sub
                 End If
+
                 Console.WriteLine(" Done.")
 
-                Console.Write($"INFO: Verifying ZIP package file ""{strZIPFile}""...")
+                Console.ForegroundColor = ConsoleColor.Green
+                Console.Write("INFO:")
+                Console.ResetColor()
+                Console.Write($" Verifying ZIP package file ""{strZIPFile}""...")
+
                 If Not VerifyChecksum(programZipFileSHA256URL, memoryStream, httpHelper, True) Then
                     MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
+                    Console.ForegroundColor = ConsoleColor.Red
                     Console.WriteLine(" Something went wrong, verification failed; update process aborted.")
+                    Console.ResetColor()
                     Exit Sub
                 End If
+
                 Console.WriteLine(" Done.")
 
                 memoryStream.Position = 0
 
                 Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
                     For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
-                        Console.Write($"INFO: Extracting and writing file ""{fileInZIP.Name}""...")
+                        Console.ForegroundColor = ConsoleColor.Green
+                        Console.Write("INFO:")
+                        Console.ResetColor()
+                        Console.Write($" Extracting and writing file ""{fileInZIP.Name}""...")
+
                         Using fileStream As New FileStream(Path.Combine(currentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
                             fileStream.SetLength(0)
                             fileInZIP.Open.CopyTo(fileStream)
                         End Using
+
                         Console.WriteLine(" Done.")
                     Next
                 End Using
@@ -130,12 +186,14 @@ Module Module1
 
             If AreWeAnAdministrator() Then RunNGEN(strProgramEXE)
 
+            Console.ForegroundColor = ConsoleColor.Green
             Console.WriteLine("Update process complete.")
 
             Process.Start(Path.Combine(currentLocation, strProgramEXE))
 
             Console.WriteLine("Starting new instance updated program.")
             Console.WriteLine("You may now close this console window.")
+            Console.ResetColor()
         End If
     End Sub
 
