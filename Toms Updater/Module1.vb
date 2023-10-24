@@ -45,6 +45,12 @@ Module Module1
         ' ==============================
     End Sub
 
+    Private Sub ColoredConsoleLineWriter(strStringToWriteToTheConsole As String, Optional color As ConsoleColor = ConsoleColor.Green)
+        Console.ForegroundColor = color
+        Console.Write(strStringToWriteToTheConsole)
+        Console.ResetColor()
+    End Sub
+
     Sub Main()
         Console.ForegroundColor = ConsoleColor.Green
         Console.WriteLine("-----------------------")
@@ -73,46 +79,34 @@ Module Module1
                     strZIPFile = "Hasher.zip"
                     strProgramEXE = "Hasher.exe"
 
-                    Console.ForegroundColor = ConsoleColor.Green
-                    Console.Write("INFO:")
-                    Console.ResetColor()
+                    ColoredConsoleLineWriter("INFO:")
                     Console.WriteLine(" Updating Hasher.")
                 ElseIf String.Equals(strProgramCode, "simpleqr", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "SimpleQR.zip"
                     strProgramEXE = "SimpleQR.exe"
 
-                    Console.ForegroundColor = ConsoleColor.Green
-                    Console.Write("INFO:")
-                    Console.ResetColor()
+                    ColoredConsoleLineWriter("INFO:")
                     Console.WriteLine(" Updating SimpleQR.")
                 ElseIf String.Equals(strProgramCode, "startprogramewithnouac", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Start Program at Startup without UAC Prompt.zip"
                     strProgramEXE = "Start Program at Startup without UAC Prompt.exe"
 
-                    Console.ForegroundColor = ConsoleColor.Green
-                    Console.Write("INFO:")
-                    Console.ResetColor()
+                    ColoredConsoleLineWriter("INFO:")
                     Console.WriteLine(" Updating Start Program at Startup without UAC Prompt.")
                 ElseIf String.Equals(strProgramCode, "dnsoverhttps", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "DNS Over HTTPS Well Known Servers.zip"
                     strProgramEXE = "DNS Over HTTPS Well Known Servers.exe"
 
-                    Console.ForegroundColor = ConsoleColor.Green
-                    Console.Write("INFO:")
-                    Console.ResetColor()
+                    ColoredConsoleLineWriter("INFO:")
                     Console.WriteLine(" Updating DNS Over HTTPS Well Known Servers.")
                 ElseIf String.Equals(strProgramCode, "freesyslog", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Free SysLog.zip"
                     strProgramEXE = "Free SysLog.exe"
 
-                    Console.ForegroundColor = ConsoleColor.Green
-                    Console.Write("INFO:")
-                    Console.ResetColor()
+                    ColoredConsoleLineWriter("INFO:")
                     Console.WriteLine(" Updating Free SysLog.")
                 Else
-                    Console.ForegroundColor = ConsoleColor.Red
-                    Console.Write("ERROR:")
-                    Console.ResetColor()
+                    ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
                     Console.WriteLine(" Invalid program code.")
 
                     MsgBox("Invalid Program Code!", MsgBoxStyle.Critical, strMessageBoxTitleText)
@@ -125,9 +119,7 @@ Module Module1
 
             Dim httpHelper As HttpHelper = CreateNewHTTPHelperObject()
 
-            Console.ForegroundColor = ConsoleColor.Green
-            Console.Write("INFO:")
-            Console.ResetColor()
+            ColoredConsoleLineWriter("INFO:")
             Console.Write($" Killing Process for {strProgramEXE}...")
 
             SearchForProcessAndKillIt(strProgramEXE, False)
@@ -135,9 +127,7 @@ Module Module1
             Console.WriteLine(" Done.")
 
             Using memoryStream As New MemoryStream()
-                Console.ForegroundColor = ConsoleColor.Green
-                Console.Write("INFO:")
-                Console.ResetColor()
+                ColoredConsoleLineWriter("INFO:")
                 Console.Write($" Downloading ZIP package file ""{strZIPFile}""...")
 
                 If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
@@ -150,9 +140,7 @@ Module Module1
 
                 Console.WriteLine(" Done.")
 
-                Console.ForegroundColor = ConsoleColor.Green
-                Console.Write("INFO:")
-                Console.ResetColor()
+                ColoredConsoleLineWriter("INFO:")
                 Console.Write($" Verifying ZIP package file ""{strZIPFile}""...")
 
                 If Not VerifyChecksum(programZipFileSHA256URL, memoryStream, httpHelper, True) Then
@@ -169,9 +157,7 @@ Module Module1
 
                 Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
                     For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
-                        Console.ForegroundColor = ConsoleColor.Green
-                        Console.Write("INFO:")
-                        Console.ResetColor()
+                        ColoredConsoleLineWriter("INFO:")
                         Console.Write($" Extracting and writing file ""{fileInZIP.Name}""...")
 
                         Using fileStream As New FileStream(Path.Combine(currentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
