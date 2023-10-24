@@ -12,7 +12,7 @@ Module Module1
         Dim psi As New ProcessStartInfo With {
             .UseShellExecute = True,
             .FileName = Path.Combine(Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "ngen.exe"),
-            .Arguments = $"uninstall {Chr(34)}{strFileName}{Chr(34)}",
+            .Arguments = $"uninstall ""{strFileName}""",
             .WindowStyle = ProcessWindowStyle.Hidden
         }
 
@@ -26,7 +26,7 @@ Module Module1
         psi = New ProcessStartInfo With {
             .UseShellExecute = True,
             .FileName = IO.Path.Combine(Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "ngen.exe"),
-            .Arguments = $"install {Chr(34)}{strFileName}{Chr(34)}",
+            .Arguments = $"install ""{strFileName}""",
             .WindowStyle = ProcessWindowStyle.Hidden
         }
 
@@ -98,7 +98,7 @@ Module Module1
             Console.WriteLine(" Done.")
 
             Using memoryStream As New MemoryStream()
-                Console.Write($"INFO: Downloading ZIP package file {Chr(34)}{strZIPFile}{Chr(34)}...")
+                Console.Write($"INFO: Downloading ZIP package file ""{strZIPFile}""...")
                 If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
                     MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
                     Console.WriteLine(" Something went wrong, update process aborted.")
@@ -106,7 +106,7 @@ Module Module1
                 End If
                 Console.WriteLine(" Done.")
 
-                Console.Write($"INFO: Verifying ZIP package file {Chr(34)}{strZIPFile}{Chr(34)}...")
+                Console.Write($"INFO: Verifying ZIP package file ""{strZIPFile}""...")
                 If Not VerifyChecksum(programZipFileSHA256URL, memoryStream, httpHelper, True) Then
                     MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
                     Console.WriteLine(" Something went wrong, verification failed; update process aborted.")
@@ -118,7 +118,7 @@ Module Module1
 
                 Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
                     For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
-                        Console.Write($"INFO: Extracting and writing file {Chr(34)}{fileInZIP.Name}{Chr(34)}...")
+                        Console.Write($"INFO: Extracting and writing file ""{fileInZIP.Name}""...")
                         Using fileStream As New FileStream(Path.Combine(currentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
                             fileStream.SetLength(0)
                             fileInZIP.Open.CopyTo(fileStream)
