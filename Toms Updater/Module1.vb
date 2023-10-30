@@ -62,7 +62,7 @@ Module Module1
         Dim strProgramCode As String = Nothing
         Dim strProgramEXE As String = Nothing
         Dim strZIPFile As String = Nothing
-        Dim strBaseURL As String = "www.toms-world.org/download/"
+        Dim strBaseURL As String = "https://www.toms-world.org/download/"
         Dim currentLocation As String = New FileInfo(Windows.Forms.Application.ExecutablePath).DirectoryName
 
         If ConsoleApplicationBase.CommandLineArgs.Count = 1 Then
