@@ -3,7 +3,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.0"
+    Private Const strVersionString As String = "1.1"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
 
@@ -53,10 +53,12 @@ Module Module1
     End Sub
 
     Sub Main()
+        Dim strProgramTitleString As String = $"== Starting {strMessageBoxTitleText} version {strVersionString} =="
+
         Console.ForegroundColor = ConsoleColor.Green
-        Console.WriteLine("-----------------------")
-        Console.WriteLine("Starting Tom's Updater.")
-        Console.WriteLine("-----------------------")
+        Console.WriteLine(New String("=", strProgramTitleString.Length))
+        Console.WriteLine(strProgramTitleString)
+        Console.WriteLine(New String("=", strProgramTitleString.Length))
         Console.ResetColor()
 
         Dim ConsoleApplicationBase As New ApplicationServices.ConsoleApplicationBase
