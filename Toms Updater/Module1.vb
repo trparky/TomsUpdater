@@ -179,7 +179,7 @@ Module Module1
 
             Process.Start(Path.Combine(currentLocation, strProgramEXE))
 
-            Console.WriteLine("Starting new instance updated program.")
+            Console.WriteLine("Starting new instance of updated program.")
             Console.WriteLine("You may now close this console window.")
             Console.ResetColor()
         End If
