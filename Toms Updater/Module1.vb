@@ -128,7 +128,7 @@ Module Module1
 
             Using memoryStream As New MemoryStream()
                 ColoredConsoleLineWriter("INFO:")
-                Console.Write($" Downloading ZIP package file ""{strZIPFile}""...")
+                Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}""...")
 
                 If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
                     MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
