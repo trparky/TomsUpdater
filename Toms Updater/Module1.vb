@@ -1,9 +1,10 @@
 ﻿Imports System.IO
+Imports System.Security.AccessControl
 Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.1"
+    Private Const strVersionString As String = "1.2"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
 
@@ -114,6 +115,26 @@ Module Module1
                     MsgBox("Invalid Program Code!", MsgBoxStyle.Critical, strMessageBoxTitleText)
                     Exit Sub
                 End If
+            End If
+
+            ColoredConsoleLineWriter("INFO:")
+            Console.Write($" Checking to see if we can write to the current location...")
+
+            If Not CheckFolderPermissionsByACLs(New FileInfo(Windows.Forms.Application.ExecutablePath).DirectoryName) Then
+                Console.ForegroundColor = ConsoleColor.Red
+                Console.WriteLine(" No. Restarting with admin privileges.")
+                Console.ResetColor()
+
+                Dim startInfo As New ProcessStartInfo With {
+                    .FileName = "updater.exe",
+                    .Arguments = $"--programcode={strProgramCode}",
+                    .Verb = "runas"
+                }
+
+                Process.Start(startInfo)
+                Process.GetCurrentProcess.Kill()
+            Else
+                Console.WriteLine(" Yes. Continuing update process.")
             End If
 
             Dim strCombinedZIPFileURL As String = $"{strBaseURL}{strZIPFile}"
@@ -367,5 +388,26 @@ Module Module1
         Using SHA256Engine As New Security.Cryptography.SHA256CryptoServiceProvider
             Return BitConverter.ToString(SHA256Engine.ComputeHash(stream)).ToLower().Replace("-", "").Trim
         End Using
+    End Function
+
+    Private Function CheckFolderPermissionsByACLs(folderPath As String) As Boolean
+        Try
+            Dim directoryACLs As DirectorySecurity = Directory.GetAccessControl(folderPath)
+            Dim directoryAccessRights As FileSystemAccessRule
+
+            For Each rule As AuthorizationRule In directoryACLs.GetAccessRules(True, True, GetType(SecurityIdentifier))
+                If rule.IdentityReference.Value.Equals(WindowsIdentity.GetCurrent.User.Value, StringComparison.OrdinalIgnoreCase) Then
+                    directoryAccessRights = DirectCast(rule, FileSystemAccessRule)
+
+                    If directoryAccessRights.AccessControlType = AccessControlType.Allow AndAlso directoryAccessRights.FileSystemRights = (FileSystemRights.Read Or FileSystemRights.Modify Or FileSystemRights.Write Or FileSystemRights.FullControl) Then
+                        Return True
+                    End If
+                End If
+            Next
+
+            Return False
+        Catch ex As Exception
+            Return False
+        End Try
     End Function
 End Module
