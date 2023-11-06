@@ -111,8 +111,6 @@ Module Module1
                 Else
                     ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
                     Console.WriteLine(" Invalid program code.")
-
-                    MsgBox("Invalid Program Code!", MsgBoxStyle.Critical, strMessageBoxTitleText)
                     Exit Sub
                 End If
             End If
@@ -154,7 +152,6 @@ Module Module1
                 Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}""...")
 
                 If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
-                    MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
                     Console.ForegroundColor = ConsoleColor.Red
                     Console.WriteLine(" Something went wrong, update process aborted.")
                     Console.ResetColor()
@@ -167,7 +164,6 @@ Module Module1
                 Console.Write($" Verifying ZIP package file ""{strZIPFile}""...")
 
                 If Not VerifyChecksum(programZipFileSHA256URL, memoryStream, httpHelper) Then
-                    MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
                     Console.ForegroundColor = ConsoleColor.Red
                     Console.WriteLine(" Something went wrong, verification failed; update process aborted.")
                     Console.ResetColor()
