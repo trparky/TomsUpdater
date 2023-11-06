@@ -358,12 +358,15 @@ Module Module1
                         Return False
                     End If
                 Else
+                    ' Handles regex parsing errors.
                     Return False
                 End If
             Else
+                ' Handles any HTTP errors.
                 Return False
             End If
         Catch ex As Exception
+            ' Handles any exceptions.
             Return False
         End Try
     End Function
