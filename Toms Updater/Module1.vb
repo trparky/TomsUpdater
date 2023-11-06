@@ -166,7 +166,7 @@ Module Module1
                 ColoredConsoleLineWriter("INFO:")
                 Console.Write($" Verifying ZIP package file ""{strZIPFile}""...")
 
-                If Not VerifyChecksum(programZipFileSHA256URL, memoryStream, httpHelper, True) Then
+                If Not VerifyChecksum(programZipFileSHA256URL, memoryStream, httpHelper) Then
                     MsgBox("There was an error while downloading required files.", MsgBoxStyle.Critical, strMessageBoxTitleText)
                     Console.ForegroundColor = ConsoleColor.Red
                     Console.WriteLine(" Something went wrong, verification failed; update process aborted.")
@@ -336,7 +336,7 @@ Module Module1
         End Try
     End Function
 
-    Private Function VerifyChecksum(urlOfChecksumFile As String, ByRef memStream As MemoryStream, ByRef httpHelper As HttpHelper, boolGiveUserAnErrorMessage As Boolean) As Boolean
+    Private Function VerifyChecksum(urlOfChecksumFile As String, ByRef memStream As MemoryStream, ByRef httpHelper As HttpHelper) As Boolean
         Dim checksumFromWeb As String = Nothing
         memStream.Position = 0
 
@@ -355,31 +355,15 @@ Module Module1
                         Return True ' OK, things are good; the file passed checksum verification so we return True.
                     Else
                         ' The checksums don't match. Oops.
-                        If boolGiveUserAnErrorMessage Then
-                            MsgBox("There was an error in the download, checksums don't match. Update process aborted.", MsgBoxStyle.Critical, strMessageBoxTitleText)
-                        End If
-
                         Return False
                     End If
                 Else
-                    If boolGiveUserAnErrorMessage Then
-                        MsgBox("Invalid SHA2 file detected. Update process aborted.", MsgBoxStyle.Critical, strMessageBoxTitleText)
-                    End If
-
                     Return False
                 End If
             Else
-                If boolGiveUserAnErrorMessage Then
-                    MsgBox("There was an error downloading the checksum verification file. Update process aborted.", MsgBoxStyle.Critical, strMessageBoxTitleText)
-                End If
-
                 Return False
             End If
         Catch ex As Exception
-            If boolGiveUserAnErrorMessage Then
-                MsgBox("There was an error downloading the checksum verification file. Update process aborted.", MsgBoxStyle.Critical, strMessageBoxTitleText)
-            End If
-
             Return False
         End Try
     End Function
