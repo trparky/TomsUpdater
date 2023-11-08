@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.4"
+    Private Const strVersionString As String = "1.41"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
 
@@ -175,7 +175,7 @@ Module Module1
                 memoryStream.Position = 0
 
                 ColoredConsoleLineWriter("INFO:")
-                Console.Write(" Opening ZIP file for file extraction.")
+                Console.WriteLine(" Opening ZIP file for file extraction.")
 
                 Try
                     Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
