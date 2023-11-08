@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.3"
+    Private Const strVersionString As String = "1.4"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
 
@@ -174,19 +174,31 @@ Module Module1
 
                 memoryStream.Position = 0
 
-                Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
-                    For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
-                        ColoredConsoleLineWriter("INFO:")
-                        Console.Write($" Extracting and writing file ""{fileInZIP.Name}""...")
+                ColoredConsoleLineWriter("INFO:")
+                Console.Write(" Opening ZIP file for file extraction.")
 
-                        Using fileStream As New FileStream(Path.Combine(currentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
-                            fileStream.SetLength(0)
-                            fileInZIP.Open.CopyTo(fileStream)
-                        End Using
+                Try
+                    Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
+                        For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
+                            ColoredConsoleLineWriter("INFO:")
+                            Console.Write($" Extracting and writing file ""{fileInZIP.Name}""...")
 
-                        Console.WriteLine(" Done.")
-                    Next
-                End Using
+                            Using fileStream As New FileStream(Path.Combine(currentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
+                                fileStream.SetLength(0)
+                                fileInZIP.Open.CopyTo(fileStream)
+                            End Using
+
+                            Console.WriteLine(" Done.")
+                        Next
+                    End Using
+                Catch ex As InvalidDataException
+                    memoryStream.Close()
+                    memoryStream.Dispose()
+
+                    ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
+                    Console.Write(" An InvalidDataException occurred while extracting files from ZIP file. Update process aborted.")
+                    Exit Sub
+                End Try
             End Using
 
             If AreWeAnAdministrator() Then RunNGEN(strProgramEXE)
