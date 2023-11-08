@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.42"
+    Private Const strVersionString As String = "1.43"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
 
@@ -191,6 +191,9 @@ Module Module1
                             Console.WriteLine(" Done.")
                         Next
                     End Using
+
+                    ColoredConsoleLineWriter("INFO:")
+                    Console.WriteLine(" Closing ZIP file.")
                 Catch ex As InvalidDataException
                     memoryStream.Close()
                     memoryStream.Dispose()
