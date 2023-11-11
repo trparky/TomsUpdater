@@ -66,7 +66,7 @@ Module Module1
         Dim strProgramCode As String = Nothing
         Dim strProgramEXE As String = Nothing
         Dim strZIPFile As String = Nothing
-        Dim currentLocation As String = New FileInfo(Windows.Forms.Application.ExecutablePath).DirectoryName
+        Dim strCurrentLocation As String = New FileInfo(Windows.Forms.Application.ExecutablePath).DirectoryName
 
         If ConsoleApplicationBase.CommandLineArgs.Count = 1 Then
             For Each strCommandLineArg As String In ConsoleApplicationBase.CommandLineArgs
@@ -118,7 +118,7 @@ Module Module1
             ColoredConsoleLineWriter("INFO:")
             Console.Write($" Checking to see if we can write to the current location...")
 
-            If Not CheckFolderPermissionsByACLs(currentLocation) Then
+            If Not CheckFolderPermissionsByACLs(strCurrentLocation) Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine(" No. Restarting with admin privileges.")
                 Console.ResetColor()
@@ -183,7 +183,7 @@ Module Module1
                             ColoredConsoleLineWriter("INFO:")
                             Console.Write($" Extracting and writing file ""{fileInZIP.Name}""...")
 
-                            Using fileStream As New FileStream(Path.Combine(currentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
+                            Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
                                 fileStream.SetLength(0)
                                 fileInZIP.Open.CopyTo(fileStream)
                             End Using
@@ -209,7 +209,7 @@ Module Module1
             Console.ForegroundColor = ConsoleColor.Green
             Console.WriteLine("Update process complete.")
 
-            Process.Start(Path.Combine(currentLocation, strProgramEXE))
+            Process.Start(Path.Combine(strCurrentLocation, strProgramEXE))
 
             Console.WriteLine("Starting new instance of updated program.")
             Console.WriteLine("You may now close this console window.")
