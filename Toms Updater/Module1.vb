@@ -214,6 +214,10 @@ Module Module1
             Console.WriteLine("Starting new instance of updated program.")
             Console.WriteLine("You may now close this console window.")
             Console.ResetColor()
+        Else
+            ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
+            Console.WriteLine(" Invalid command line arguments.")
+            Console.WriteLine("Program must be ran with a command line argument of --programcode=.")
         End If
     End Sub
 
