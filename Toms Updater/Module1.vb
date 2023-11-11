@@ -118,7 +118,7 @@ Module Module1
             ColoredConsoleLineWriter("INFO:")
             Console.Write($" Checking to see if we can write to the current location...")
 
-            If Not CheckFolderPermissionsByACLs(New FileInfo(Windows.Forms.Application.ExecutablePath).DirectoryName) Then
+            If Not CheckFolderPermissionsByACLs(currentLocation) Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine(" No. Restarting with admin privileges.")
                 Console.ResetColor()
