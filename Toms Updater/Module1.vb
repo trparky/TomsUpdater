@@ -4,14 +4,12 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.44"
+    Private Const strVersionString As String = "1.45"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
 
     Private Sub RunNGEN(strFileName As String)
-        Console.ForegroundColor = ConsoleColor.Green
-        Console.Write("INFO:")
-        Console.ResetColor()
+        ColoredConsoleLineWriter("INFO:")
         Console.Write(" Removing old .NET Cached Compiled Assembly...")
 
         Dim psi As New ProcessStartInfo With {
@@ -26,9 +24,7 @@ Module Module1
 
         Console.WriteLine(" Done.")
 
-        Console.ForegroundColor = ConsoleColor.Green
-        Console.Write("INFO:")
-        Console.ResetColor()
+        ColoredConsoleLineWriter("INFO:")
         Console.Write(" Installing new .NET Cached Compiled Assembly...")
 
         psi = New ProcessStartInfo With {
