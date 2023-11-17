@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.45"
+    Private Const strVersionString As String = "1.46"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
 
@@ -175,17 +175,24 @@ Module Module1
 
                 Try
                     Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
-                        For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
-                            ColoredConsoleLineWriter("INFO:")
-                            Console.Write($" Extracting and writing file ""{fileInZIP.Name}""...")
+                        If zipFileObject.Entries.Count = 0 Then
+                            ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
+                            Console.WriteLine(" No files found in ZIP file, possible corrupt ZIP file.")
+                        Else
+                            For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
+                                If fileInZIP IsNot Nothing Then
+                                    ColoredConsoleLineWriter("INFO:")
+                                    Console.Write($" Extracting and writing file ""{fileInZIP.Name}""...")
 
-                            Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
-                                fileStream.SetLength(0)
-                                fileInZIP.Open.CopyTo(fileStream)
-                            End Using
+                                    Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
+                                        fileStream.SetLength(0)
+                                        fileInZIP.Open.CopyTo(fileStream)
+                                    End Using
 
-                            Console.WriteLine(" Done.")
-                        Next
+                                    Console.WriteLine(" Done.")
+                                End If
+                            Next
+                        End If
                     End Using
 
                     ColoredConsoleLineWriter("INFO:")
