@@ -139,6 +139,7 @@ Module Module1
             Dim programZipFileSHA256URL = $"{strCombinedZIPFileURL}.sha2"
 
             Dim httpHelper As HttpHelper = CreateNewHTTPHelperObject()
+            httpHelper.SetHTTPTimeout = 5
 
             ColoredConsoleLineWriter("INFO:")
             Console.Write($" Killing Process for {strProgramEXE}...")
