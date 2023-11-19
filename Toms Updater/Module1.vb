@@ -4,9 +4,10 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.47"
+    Private Const strVersionString As String = "1.5"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
+    Private Const byteRoundFileSizes As Short = 2
 
     Private Sub RunNGEN(strFileName As String)
         ColoredConsoleLineWriter("INFO:")
@@ -151,6 +152,12 @@ Module Module1
             Using memoryStream As New MemoryStream()
                 ColoredConsoleLineWriter("INFO:")
                 Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}""...")
+
+                httpHelper.SetDownloadStatusUpdateRoutine = Sub(downloadStatusDetails As DownloadStatusDetails)
+                                                                Console.SetCursorPosition(0, Console.CursorTop)
+                                                                ColoredConsoleLineWriter("INFO:")
+                                                                Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}"" (File Size: {FileSizeToHumanSize(downloadStatusDetails.RemoteFileSize)})...")
+                                                            End Sub
 
                 If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
                     Console.ForegroundColor = ConsoleColor.Red
@@ -419,5 +426,39 @@ Module Module1
         Catch ex As Exception
             Return False
         End Try
+    End Function
+
+    Private Function FileSizeToHumanSize(size As Long, Optional roundToNearestWholeNumber As Boolean = False) As String
+        Dim result As String
+        Dim shortRoundNumber As Short = If(roundToNearestWholeNumber, 0, byteRoundFileSizes)
+
+        If size <= (2 ^ 10) Then
+            result = $"{size} Bytes"
+        ElseIf size > (2 ^ 10) And size <= (2 ^ 20) Then
+            result = $"{MyRoundingFunction(size / (2 ^ 10), shortRoundNumber)} KBs"
+        ElseIf size > (2 ^ 20) And size <= (2 ^ 30) Then
+            result = $"{MyRoundingFunction(size / (2 ^ 20), shortRoundNumber)} MBs"
+        ElseIf size > (2 ^ 30) And size <= (2 ^ 40) Then
+            result = $"{MyRoundingFunction(size / (2 ^ 30), shortRoundNumber)} GBs"
+        ElseIf size > (2 ^ 40) And size <= (2 ^ 50) Then
+            result = $"{MyRoundingFunction(size / (2 ^ 40), shortRoundNumber)} TBs"
+        ElseIf size > (2 ^ 50) And size <= (2 ^ 60) Then
+            result = $"{MyRoundingFunction(size / (2 ^ 50), shortRoundNumber)} PBs"
+        ElseIf size > (2 ^ 60) And size <= (2 ^ 70) Then
+            result = $"{MyRoundingFunction(size / (2 ^ 50), shortRoundNumber)} EBs"
+        Else
+            result = "(None)"
+        End If
+
+        Return result
+    End Function
+
+    Private Function MyRoundingFunction(value As Double, digits As Integer) As String
+        If digits = 0 Then
+            Return Math.Round(value, digits).ToString
+        Else
+            Dim strFormatString As String = "{0:0." & New String("0", digits) & "}"
+            Return String.Format(strFormatString, Math.Round(value, digits))
+        End If
     End Function
 End Module
