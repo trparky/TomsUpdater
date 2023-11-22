@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.5"
+    Private Const strVersionString As String = "1.51"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
     Private Const byteRoundFileSizes As Short = 2
@@ -149,15 +149,21 @@ Module Module1
 
             Console.WriteLine(" Done.")
 
+            Dim longRemoteFileSize As Long = 0
+            Try
+                httpHelper.GetRemoteFileSize(strCombinedZIPFileURL, longRemoteFileSize, True)
+            Catch ex As Exception
+                ' Do nothing
+            End Try
+
             Using memoryStream As New MemoryStream()
                 ColoredConsoleLineWriter("INFO:")
-                Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}""...")
 
-                httpHelper.SetDownloadStatusUpdateRoutine = Sub(downloadStatusDetails As DownloadStatusDetails)
-                                                                Console.SetCursorPosition(0, Console.CursorTop)
-                                                                ColoredConsoleLineWriter("INFO:")
-                                                                Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}"" (File Size: {FileSizeToHumanSize(downloadStatusDetails.RemoteFileSize)})...")
-                                                            End Sub
+                If longRemoteFileSize = 0 Then
+                    Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}""...")
+                Else
+                    Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}"" (File Size: {FileSizeToHumanSize(longRemoteFileSize)})...")
+                End If
 
                 If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
                     Console.ForegroundColor = ConsoleColor.Red
