@@ -202,7 +202,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class HttpHelper
-    Private Const classVersion As String = "1.332"
+    Private Const classVersion As String = "1.333"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -817,6 +817,75 @@ beginAgain:
             ' Does nothing
         End Try
     End Sub
+
+    ''' <summary>Gets the file size of a file on a remote HTTP server..</summary>
+    ''' <param name="fileDownloadURL">The HTTP Path to a file on a remote server to check the size of.</param>
+    ''' <param name="throwExceptionIfError">Normally True. If True this function will throw an exception if an error occurs. If set to False, the function simply returns False if an error occurs; this is a much more simpler way to handle errors.</param>
+    ''' <exception cref="Net.WebException">If this function throws a Net.WebException then something failed during the HTTP request.</exception>
+    ''' <exception cref="Exception">If this function throws a general Exception, something really went wrong; something that the function normally doesn't handle.</exception>
+    ''' <exception cref="HttpProtocolException">This exception is thrown if the server responds with an HTTP Error.</exception>
+    ''' <exception cref="SslErrorException">If this function throws an sslErrorException, an error occurred while negotiating an SSL connection.</exception>
+    ''' <exception cref="DnsLookupError">If this function throws a dnsLookupError exception it means that the domain name wasn't able to be resolved properly.</exception>
+    Public Function GetRemoteFileSize(fileDownloadURL As String, ByRef longRemoteFileSize As Long, Optional throwExceptionIfError As Boolean = True) As Boolean
+        Dim httpWebRequest As Net.HttpWebRequest = Nothing
+
+        Try
+            If urlPreProcessor IsNot Nothing Then fileDownloadURL = urlPreProcessor(fileDownloadURL)
+            lastAccessedURL = fileDownloadURL
+
+            ' We create a new data buffer to hold the stream of data from the web server.
+            Dim dataBuffer As Byte() = New Byte(intDownloadBufferSize) {}
+
+            httpWebRequest = DirectCast(Net.WebRequest.Create(fileDownloadURL), Net.HttpWebRequest)
+            httpWebRequest.Method = "HEAD"
+
+            ConfigureProxy(httpWebRequest)
+            AddParametersToWebRequest(httpWebRequest)
+
+            Using webResponse As Net.WebResponse = httpWebRequest.GetResponse() ' We now get the web response.
+                CaptureSSLInfo(fileDownloadURL, httpWebRequest)
+
+                ' Gets the size of the remote file on the web server.
+                longRemoteFileSize = webResponse.ContentLength
+                Return True
+            End Using
+
+            Return False
+        Catch ex As Threading.ThreadAbortException
+            If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
+            Return False
+        Catch ex As Exception
+            lastException = ex
+
+            If Not throwExceptionIfError Then Return False
+
+            If customErrorHandler IsNot Nothing Then
+                customErrorHandler.DynamicInvoke(ex, Me)
+                ' Since we handled the exception with an injected custom error handler, we can now exit the function with the return of a False value.
+                Return False
+            End If
+
+            If ex.GetType.Equals(GetType(Net.WebException)) Then
+                Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
+
+                If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
+                    Throw HandleWebExceptionProtocolError(fileDownloadURL, ex2)
+                ElseIf ex2.Status = Net.WebExceptionStatus.TrustFailure Then
+                    lastException = New SslErrorException("There was an error establishing an SSL connection.", ex2)
+                    Throw lastException
+                ElseIf ex2.Status = Net.WebExceptionStatus.NameResolutionFailure Then
+                    Dim strDomainName As String = Text.RegularExpressions.Regex.Match(lastAccessedURL, "(?:http(?:s){0,1}://){0,1}(.*)/", Text.RegularExpressions.RegexOptions.Singleline).Groups(1).Value
+                    lastException = New DnsLookupError($"There was an error while looking up the DNS records for the domain name ""{strDomainName}"".", ex2)
+                    Throw lastException
+                End If
+
+                lastException = New Net.WebException(ex.Message, ex2)
+                Throw lastException
+            End If
+
+            Return False
+        End Try
+    End Function
 
     ''' <summary>Downloads a file from a web server while feeding back the status of the download. You can find the percentage of the download in the httpDownloadProgressPercentage variable. This function gives you the programmer more control over how HTTP downloads are done. For instance, if you don't want to write the data directly out to disk until the download is complete, this function gives you that ability whereas the downloadFile() function writes the downloaded data directly to disk bypassing system RAM. This is good for those cases you may be writing the data to an SSD in which you only want to write the data to the SSD until the download is known to be successful.</summary>
     ''' <param name="fileDownloadURL">The HTTP Path to a file on a remote server to download.</param>
