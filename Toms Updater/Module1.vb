@@ -9,39 +9,41 @@ Module Module1
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
     Private Const byteRoundFileSizes As Short = 2
 
-    Private Sub RunNGEN(strFileName As String)
-        ColoredConsoleLineWriter("INFO:")
-        Console.Write(" Removing old .NET Cached Compiled Assembly...")
+    Private Sub RunNGEN(extractedFiles As Specialized.StringCollection)
+        For Each strFileName As String In extractedFiles
+            ColoredConsoleLineWriter("INFO:")
+            Console.Write($" Removing old .NET Cached Compiled Assembly for {strFileName}...")
 
-        Dim psi As New ProcessStartInfo With {
-            .UseShellExecute = True,
-            .FileName = Path.Combine(Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "ngen.exe"),
-            .Arguments = $"uninstall ""{strFileName}""",
-            .WindowStyle = ProcessWindowStyle.Hidden
-        }
+            Dim psi As New ProcessStartInfo With {
+                .UseShellExecute = True,
+                .FileName = Path.Combine(Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "ngen.exe"),
+                .Arguments = $"uninstall ""{strFileName}""",
+                .WindowStyle = ProcessWindowStyle.Hidden
+            }
 
-        Dim proc As Process = Process.Start(psi)
-        proc.WaitForExit()
+            Dim proc As Process = Process.Start(psi)
+            proc.WaitForExit()
 
-        Console.WriteLine(" Done.")
+            Console.WriteLine(" Done.")
 
-        ColoredConsoleLineWriter("INFO:")
-        Console.Write(" Installing new .NET Cached Compiled Assembly...")
+            ColoredConsoleLineWriter("INFO:")
+            Console.Write($" Installing new .NET Cached Compiled Assembly for {strFileName}...")
 
-        psi = New ProcessStartInfo With {
-            .UseShellExecute = True,
-            .FileName = Path.Combine(Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "ngen.exe"),
-            .Arguments = $"install ""{strFileName}""",
-            .WindowStyle = ProcessWindowStyle.Hidden
-        }
+            psi = New ProcessStartInfo With {
+                .UseShellExecute = True,
+                .FileName = Path.Combine(Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "ngen.exe"),
+                .Arguments = $"install ""{strFileName}""",
+                .WindowStyle = ProcessWindowStyle.Hidden
+            }
 
-        proc = Process.Start(psi)
-        proc.WaitForExit()
+            proc = Process.Start(psi)
+            proc.WaitForExit()
 
-        Console.WriteLine(" Done.")
-        ' ==============================
-        ' == Ends code that runs NGEN ==
-        ' ==============================
+            Console.WriteLine(" Done.")
+            ' ==============================
+            ' == Ends code that runs NGEN ==
+            ' ==============================
+        Next
     End Sub
 
     Private Sub ColoredConsoleLineWriter(strStringToWriteToTheConsole As String, Optional color As ConsoleColor = ConsoleColor.Green)
@@ -64,6 +66,7 @@ Module Module1
         Dim strProgramEXE As String = Nothing
         Dim strZIPFile As String = Nothing
         Dim strCurrentLocation As String = New FileInfo(Windows.Forms.Application.ExecutablePath).DirectoryName
+        Dim extractedFiles As New Specialized.StringCollection
 
         If ConsoleApplicationBase.CommandLineArgs.Count = 1 Then
             For Each strCommandLineArg As String In ConsoleApplicationBase.CommandLineArgs
@@ -203,6 +206,8 @@ Module Module1
                                     Console.Write($" Extracting and writing file ""{fileInZIP.Name}""...")
 
                                     Try
+                                        extractedFiles.Add(fileInZIP.Name)
+
                                         Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
                                             fileStream.SetLength(0)
                                             fileInZIP.Open.CopyTo(fileStream)
@@ -238,7 +243,7 @@ Module Module1
                 End Try
             End Using
 
-            If AreWeAnAdministrator() Then RunNGEN(strProgramEXE)
+            If AreWeAnAdministrator() Then RunNGEN(extractedFiles)
 
             Console.ForegroundColor = ConsoleColor.Green
             Console.WriteLine("Update process complete.")
