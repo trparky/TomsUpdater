@@ -213,6 +213,13 @@ Module Module1
                                         Console.ForegroundColor = ConsoleColor.Red
                                         Console.WriteLine(" Failed. An IOException occurred.")
                                         Console.ResetColor()
+
+                                        memoryStream.Close()
+                                        memoryStream.Dispose()
+
+                                        ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
+                                        Console.Write(" An IOException occurred while extracting files from ZIP file. Update process aborted.")
+                                        Exit Sub
                                     End Try
                                 End If
                             Next
