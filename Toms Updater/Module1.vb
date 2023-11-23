@@ -243,7 +243,12 @@ Module Module1
                 End Try
             End Using
 
-            If AreWeAnAdministrator() Then RunNGEN(extractedFiles)
+            If AreWeAnAdministrator() Then
+                RunNGEN(extractedFiles)
+            Else
+                ColoredConsoleLineWriter("INFO:")
+                Console.WriteLine(" Skipping NGEN process since we're not running as an administrator.")
+            End If
 
             Console.ForegroundColor = ConsoleColor.Green
             Console.WriteLine("Update process complete.")
