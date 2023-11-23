@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.52"
+    Private Const strVersionString As String = "1.53"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
     Private Const byteRoundFileSizes As Short = 2
@@ -202,12 +202,18 @@ Module Module1
                                     ColoredConsoleLineWriter("INFO:")
                                     Console.Write($" Extracting and writing file ""{fileInZIP.Name}""...")
 
-                                    Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
-                                        fileStream.SetLength(0)
-                                        fileInZIP.Open.CopyTo(fileStream)
-                                    End Using
+                                    Try
+                                        Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
+                                            fileStream.SetLength(0)
+                                            fileInZIP.Open.CopyTo(fileStream)
+                                        End Using
 
-                                    Console.WriteLine(" Done.")
+                                        Console.WriteLine(" Done.")
+                                    Catch ex As IOException
+                                        Console.ForegroundColor = ConsoleColor.Red
+                                        Console.WriteLine(" Failed. An IOException occurred.")
+                                        Console.ResetColor()
+                                    End Try
                                 End If
                             Next
                         End If
