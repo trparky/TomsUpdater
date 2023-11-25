@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.54"
+    Private Const strVersionString As String = "1.56"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
     Private Const byteRoundFileSizes As Short = 2
@@ -152,9 +152,10 @@ Module Module1
 
             Console.WriteLine(" Done.")
 
-            Dim longRemoteFileSize As Long = 0
+            Dim RemoteFileStats As HttpHelper.RemoteFileStats = Nothing
+
             Try
-                httpHelper.GetRemoteFileSize(strCombinedZIPFileURL, longRemoteFileSize, True)
+                httpHelper.GetRemoteFileStats(strCombinedZIPFileURL, RemoteFileStats, True)
             Catch ex As Exception
                 ' Do nothing
             End Try
@@ -162,10 +163,10 @@ Module Module1
             Using memoryStream As New MemoryStream()
                 ColoredConsoleLineWriter("INFO:")
 
-                If longRemoteFileSize = 0 Then
+                If RemoteFileStats.contentLength = 0 Then
                     Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}""...")
                 Else
-                    Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}"" (File Size: {FileSizeToHumanSize(longRemoteFileSize)})...")
+                    Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}"" (File Size: {FileSizeToHumanSize(RemoteFileStats.contentLength)}, Last Modified: {Date.Parse(RemoteFileStats.headers("Last-Modified")).ToLocalTime})...")
                 End If
 
                 If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
