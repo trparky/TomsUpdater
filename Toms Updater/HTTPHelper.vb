@@ -202,7 +202,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class HttpHelper
-    Private Const classVersion As String = "1.334"
+    Private Const classVersion As String = "1.335"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -235,6 +235,12 @@ Public Class HttpHelper
     Private Const strCRLF As String = vbCrLf
 
     Private downloadStatusUpdater As [Delegate]
+
+    Public Structure RemoteFileStats
+        Public contentLength As Long
+        Public contentType As String
+        Public headers As Net.WebHeaderCollection
+    End Structure
 
     ''' <summary>Retrieves the downloadStatusDetails data from within the Class instance.</summary>
     ''' <returns>A downloadStatusDetails Object.</returns>
@@ -826,7 +832,7 @@ beginAgain:
     ''' <exception cref="HttpProtocolException">This exception is thrown if the server responds with an HTTP Error.</exception>
     ''' <exception cref="SslErrorException">If this function throws an sslErrorException, an error occurred while negotiating an SSL connection.</exception>
     ''' <exception cref="DnsLookupError">If this function throws a dnsLookupError exception it means that the domain name wasn't able to be resolved properly.</exception>
-    Public Function GetRemoteFileSize(fileDownloadURL As String, ByRef longRemoteFileSize As Long, Optional throwExceptionIfError As Boolean = True) As Boolean
+    Public Function GetRemoteFileStats(fileDownloadURL As String, ByRef RemoteFileStats As RemoteFileStats, Optional throwExceptionIfError As Boolean = True) As Boolean
         Dim httpWebRequest As Net.HttpWebRequest = Nothing
 
         Try
@@ -839,11 +845,15 @@ beginAgain:
             ConfigureProxy(httpWebRequest)
             AddParametersToWebRequest(httpWebRequest)
 
+            RemoteFileStats = New RemoteFileStats
+
             Using webResponse As Net.WebResponse = httpWebRequest.GetResponse() ' We now get the web response.
                 CaptureSSLInfo(fileDownloadURL, httpWebRequest)
 
-                ' Gets the size of the remote file on the web server.
-                longRemoteFileSize = webResponse.ContentLength
+                RemoteFileStats.contentLength = webResponse.ContentLength
+                RemoteFileStats.contentType = webResponse.ContentType
+                RemoteFileStats.headers = webResponse.Headers
+
                 Return True
             End Using
 
