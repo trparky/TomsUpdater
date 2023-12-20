@@ -63,8 +63,7 @@ Module Module1
 
         Dim ConsoleApplicationBase As New ApplicationServices.ConsoleApplicationBase
         Dim strProgramCode As String = Nothing
-        Dim strProgramEXE As String = Nothing
-        Dim strZIPFile As String = Nothing
+        Dim strProgramEXE, strZIPFile As String
         Dim strCurrentLocation As String = New FileInfo(Windows.Forms.Application.ExecutablePath).DirectoryName
         Dim extractedFiles As New Specialized.StringCollection
 
