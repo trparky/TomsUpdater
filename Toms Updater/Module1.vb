@@ -40,9 +40,6 @@ Module Module1
             proc.WaitForExit()
 
             Console.WriteLine(" Done.")
-            ' ==============================
-            ' == Ends code that runs NGEN ==
-            ' ==============================
         Next
     End Sub
 
