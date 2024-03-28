@@ -4,10 +4,11 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.59"
+    Private Const strVersionString As String = "1.60"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
     Private Const byteRoundFileSizes As Short = 2
+    Public strEXEPath As String = Process.GetCurrentProcess.MainModule.FileName
 
     Private Sub RunNGEN(extractedFiles As Specialized.StringCollection)
         For Each strFileName As String In extractedFiles
@@ -61,7 +62,7 @@ Module Module1
         Dim ConsoleApplicationBase As New ApplicationServices.ConsoleApplicationBase
         Dim strProgramCode As String = Nothing
         Dim strProgramEXE, strZIPFile As String
-        Dim strCurrentLocation As String = New FileInfo(Windows.Forms.Application.ExecutablePath).DirectoryName
+        Dim strCurrentLocation As String = New FileInfo(strEXEPath).DirectoryName
         Dim extractedFiles As New Specialized.StringCollection
 
         If ConsoleApplicationBase.CommandLineArgs.Count = 1 Then
