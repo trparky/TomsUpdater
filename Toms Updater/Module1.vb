@@ -256,6 +256,8 @@ Module Module1
             Console.WriteLine("Starting new instance of updated program.")
             Console.WriteLine("You may now close this console window.")
             Console.ResetColor()
+
+            Threading.Thread.Sleep(TimeSpan.FromSeconds(5).TotalMilliseconds)
         Else
             ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
             Console.WriteLine(" Invalid command line arguments.")
