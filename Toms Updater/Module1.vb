@@ -117,7 +117,7 @@ Module Module1
             End If
 
             ColoredConsoleLineWriter("INFO:")
-            Console.Write($" Checking to see if we can write to the current location...")
+            Console.Write($" Checking to see if we can write to the current location ({strCurrentLocation})...")
 
             If Not CheckFolderPermissionsByACLs(strCurrentLocation) Then
                 Console.ForegroundColor = ConsoleColor.Red
