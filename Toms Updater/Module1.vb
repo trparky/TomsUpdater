@@ -201,7 +201,7 @@ Module Module1
                             For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
                                 If fileInZIP IsNot Nothing Then
                                     ColoredConsoleLineWriter("INFO:")
-                                    Console.Write($" Extracting and writing file ""{fileInZIP.Name}""...")
+                                    Console.Write($" Extracting and writing file ""{fileInZIP.Name}"" to ""{Path.Combine(strCurrentLocation, fileInZIP.Name)}""...")
 
                                     Try
                                         extractedFiles.Add(fileInZIP.Name)
