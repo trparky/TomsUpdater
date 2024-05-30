@@ -50,6 +50,23 @@ Module Module1
         Console.ResetColor()
     End Sub
 
+    Private Function GetFileHash(strFilePath As String) As String
+        If File.Exists(strFilePath) Then
+            Using fileStream As FileStream = File.OpenRead(strFilePath)
+                Return GetFileHash(fileStream)
+            End Using
+        Else
+            Return ""
+        End If
+    End Function
+
+    Private Function GetFileHash(fileStream As Stream) As String
+        Using sha512Engine As New Security.Cryptography.SHA512CryptoServiceProvider()
+            Dim hashBytes As Byte() = sha512Engine.ComputeHash(fileStream)
+            Return BitConverter.ToString(hashBytes).ToLower().Replace("-", "")
+        End Using
+    End Function
+
     Sub Main()
         Dim strProgramTitleString As String = $"== {strMessageBoxTitleText} version {strVersionString} =="
 
@@ -192,6 +209,8 @@ Module Module1
                 ColoredConsoleLineWriter("INFO:")
                 Console.WriteLine(" Opening ZIP file for file extraction.")
 
+                Dim strLocalFileHash, strHashOfFileInZIP As String
+
                 Try
                     Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
                         If zipFileObject.Entries.Count = 0 Then
@@ -200,32 +219,48 @@ Module Module1
                         Else
                             For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
                                 If fileInZIP IsNot Nothing Then
-                                    ColoredConsoleLineWriter("INFO:")
-                                    Console.Write($" Extracting and writing file ""{fileInZIP.Name}"" to ""{Path.Combine(strCurrentLocation, fileInZIP.Name)}""...")
+                                    Using zipFileMemoryStream As New MemoryStream
+                                        fileInZIP.Open.CopyTo(zipFileMemoryStream)
 
-                                    Try
-                                        extractedFiles.Add(fileInZIP.Name)
+                                        zipFileMemoryStream.Position = 0
 
-                                        Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
-                                            fileStream.SetLength(0)
-                                            fileInZIP.Open.CopyTo(fileStream)
-                                        End Using
+                                        strLocalFileHash = GetFileHash(Path.Combine(strCurrentLocation, fileInZIP.Name))
+                                        strHashOfFileInZIP = GetFileHash(zipFileMemoryStream)
 
-                                        Console.WriteLine(" Done.")
-                                    Catch ex As IOException
-                                        Console.ForegroundColor = ConsoleColor.Red
-                                        Console.WriteLine(" Failed. An IOException occurred.")
-                                        Console.ResetColor()
+                                        If strLocalFileHash.Equals(strHashOfFileInZIP, StringComparison.OrdinalIgnoreCase) Then
+                                            ColoredConsoleLineWriter("INFO:")
+                                            Console.WriteLine($" Local file ""{fileInZIP.Name}"" is the same, there's no need to update it.")
+                                        Else
+                                            zipFileMemoryStream.Position = 0
 
-                                        memoryStream.Close()
-                                        memoryStream.Dispose()
+                                            ColoredConsoleLineWriter("INFO:")
+                                            Console.Write($" Extracting and writing file ""{fileInZIP.Name}"" to ""{Path.Combine(strCurrentLocation, fileInZIP.Name)}""...")
 
-                                        ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
-                                        Console.Write(" An IOException occurred while extracting files from ZIP file. Update process aborted.")
+                                            Try
+                                                extractedFiles.Add(fileInZIP.Name)
 
-                                        Threading.Thread.Sleep(TimeSpan.FromSeconds(5).TotalMilliseconds)
-                                        Exit Sub
-                                    End Try
+                                                Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
+                                                    fileStream.SetLength(0)
+                                                    zipFileMemoryStream.CopyTo(fileStream)
+                                                End Using
+
+                                                Console.WriteLine(" Done.")
+                                            Catch ex As IOException
+                                                Console.ForegroundColor = ConsoleColor.Red
+                                                Console.WriteLine(" Failed. An IOException occurred.")
+                                                Console.ResetColor()
+
+                                                memoryStream.Close()
+                                                memoryStream.Dispose()
+
+                                                ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
+                                                Console.Write(" An IOException occurred while extracting files from ZIP file. Update process aborted.")
+
+                                                Threading.Thread.Sleep(TimeSpan.FromSeconds(5).TotalMilliseconds)
+                                                Exit Sub
+                                            End Try
+                                        End If
+                                    End Using
                                 End If
                             Next
                         End If
