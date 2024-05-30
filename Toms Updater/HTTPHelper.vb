@@ -202,7 +202,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class HttpHelper
-    Private Const classVersion As String = "1.336"
+    Private Const classVersion As String = "1.337"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -231,7 +231,6 @@ Public Class HttpHelper
     Private urlPreProcessor As Func(Of String, String)
     Private customErrorHandler As [Delegate]
 
-    Private Const strLF As String = vbLf
     Private Const strCRLF As String = vbCrLf
 
     Private downloadStatusUpdater As [Delegate]
@@ -1498,12 +1497,10 @@ beginAgain:
     End Sub
 
     Private Function ConvertLineFeeds(input As String) As String
-        ' Checks to see if the file is in Windows linefeed format or UNIX linefeed format.
-        If input.Contains(vbCrLf) Then
-            Return input ' It's in Windows linefeed format so we return the output as is.
-        Else
-            Return input.Replace(strLF, strCRLF) ' It's in UNIX linefeed format so we have to convert it to Windows before we return the output.
-        End If
+        input = input.Replace(vbCrLf, vbLf) ' Temporarily replace all CRLF with LF
+        input = input.Replace(vbCr, vbLf) ' Convert standalone CR to LF
+        input = input.Replace(vbLf, vbCrLf) ' Finally, replace all LF with CRLF
+        Return input
     End Function
 
     Private Function GetPOSTDataString() As String
