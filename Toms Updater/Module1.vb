@@ -222,6 +222,8 @@ Module Module1
 
                                         ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
                                         Console.Write(" An IOException occurred while extracting files from ZIP file. Update process aborted.")
+
+                                        Threading.Thread.Sleep(TimeSpan.FromSeconds(5).TotalMilliseconds)
                                         Exit Sub
                                     End Try
                                 End If
@@ -237,6 +239,8 @@ Module Module1
 
                     ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
                     Console.Write(" An InvalidDataException occurred while extracting files from ZIP file. Update process aborted.")
+
+                    Threading.Thread.Sleep(TimeSpan.FromSeconds(5).TotalMilliseconds)
                     Exit Sub
                 End Try
             End Using
