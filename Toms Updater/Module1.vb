@@ -79,7 +79,7 @@ Module Module1
         Dim ConsoleApplicationBase As New ApplicationServices.ConsoleApplicationBase
         Dim strProgramCode As String = Nothing
         Dim strProgramEXE, strZIPFile As String
-        Dim strCurrentLocation As String = New FileInfo(strEXEPath).DirectoryName
+        Dim strCurrentLocation As String = AppDomain.CurrentDomain.BaseDirectory
         Dim extractedFiles As New Specialized.StringCollection
 
         If ConsoleApplicationBase.CommandLineArgs.Count = 1 Then
