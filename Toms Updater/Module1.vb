@@ -67,6 +67,31 @@ Module Module1
         End Using
     End Function
 
+    Private Function ParseArguments(args As ObjectModel.ReadOnlyCollection(Of String)) As Dictionary(Of String, Object)
+        Dim parsedArguments As New Dictionary(Of String, Object)(StringComparer.OrdinalIgnoreCase)
+        Dim strValue As String
+
+        For Each strArgument As String In args
+            If strArgument.StartsWith("--") Then
+                Dim splitArg As String() = strArgument.Substring(2).Split(New Char() {"="c}, 2)
+                Dim key As String = splitArg(0)
+
+                If splitArg.Length = 2 Then
+                    ' Argument with a value
+                    strValue = splitArg(1)
+                    parsedArguments(key) = strValue
+                Else
+                    ' Boolean flag
+                    parsedArguments(key) = True
+                End If
+            Else
+                Console.WriteLine($"Unrecognized argument format: {strArgument}")
+            End If
+        Next
+
+        Return parsedArguments
+    End Function
+
     Sub Main()
         Dim strProgramTitleString As String = $"== {strMessageBoxTitleText} version {strVersionString} =="
 
@@ -81,13 +106,10 @@ Module Module1
         Dim strProgramEXE, strZIPFile As String
         Dim strCurrentLocation As String = AppDomain.CurrentDomain.BaseDirectory
         Dim extractedFiles As New Specialized.StringCollection
+        Dim parsedArguments As Dictionary(Of String, Object) = ParseArguments(ConsoleApplicationBase.CommandLineArgs)
 
-        If ConsoleApplicationBase.CommandLineArgs.Count = 1 Then
-            For Each strCommandLineArg As String In ConsoleApplicationBase.CommandLineArgs
-                If strCommandLineArg.StartsWith("--programcode=", StringComparison.OrdinalIgnoreCase) Then
-                    strProgramCode = strCommandLineArg.Replace("--programcode=", "", StringComparison.OrdinalIgnoreCase)
-                End If
-            Next
+        If parsedArguments.Count > 0 AndAlso parsedArguments.ContainsKey("programcode") Then
+            strProgramCode = parsedArguments("programcode")
 
             If Not String.IsNullOrWhiteSpace(strProgramCode) Then
                 strProgramCode = strProgramCode.Trim
