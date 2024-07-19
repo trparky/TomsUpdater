@@ -202,7 +202,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class HttpHelper
-    Private Const classVersion As String = "1.338"
+    Private Const classVersion As String = "1.339"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -710,21 +710,21 @@ Public Class HttpHelper
             }
 
             If String.IsNullOrEmpty(strContentType) Then
-                Dim contentType As String
+                Dim rawRegValue As Object
                 Dim regPath As Microsoft.Win32.RegistryKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(fileInfo.Extension.ToLower, False)
 
                 If regPath Is Nothing Then
                     lastException = New NoMimeTypeFoundException($"No MIME Type found for {fileInfo.Extension.ToLower}")
                     Throw lastException
                 Else
-                    contentType = regPath.GetValue("Content Type", Nothing).ToString
-                End If
+                    rawRegValue = regPath.GetValue("Content Type", Nothing)
 
-                If String.IsNullOrEmpty(contentType) Then
-                    lastException = New NoMimeTypeFoundException($"No MIME Type found for {fileInfo.Extension.ToLower}")
-                    Throw lastException
-                Else
-                    formFileInstance.ContentType = contentType
+                    If rawRegValue Is Nothing Then
+                        lastException = New NoMimeTypeFoundException($"No MIME Type found for {fileInfo.Extension.ToLower}")
+                        Throw lastException
+                    Else
+                        formFileInstance.ContentType = rawRegValue.ToString
+                    End If
                 End If
             Else
                 formFileInstance.ContentType = strContentType
