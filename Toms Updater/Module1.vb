@@ -102,7 +102,7 @@ Module Module1
         Console.ResetColor()
 
         Dim ConsoleApplicationBase As New ApplicationServices.ConsoleApplicationBase
-        Dim strProgramCode As String = Nothing
+        Dim strProgramCode As String
         Dim strProgramEXE, strZIPFile As String
         Dim strCurrentLocation As String = AppDomain.CurrentDomain.BaseDirectory
         Dim extractedFiles As New Specialized.StringCollection
