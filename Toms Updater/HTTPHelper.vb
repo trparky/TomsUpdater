@@ -202,7 +202,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class HttpHelper
-    Private Const classVersion As String = "1.339"
+    Private Const classVersion As String = "1.340"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -1160,22 +1160,18 @@ beginAgain:
             AddParametersToWebRequest(httpWebRequest)
             AddPostDataToWebRequest(httpWebRequest)
 
-            Dim httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
-            CaptureSSLInfo(url, httpWebRequest)
+            Using httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
+                CaptureSSLInfo(url, httpWebRequest)
 
-            Dim httpInStream As New StreamReader(httpWebResponse.GetResponseStream())
-            Dim httpTextOutput As String = httpInStream.ReadToEnd.Trim()
-            httpResponseHeaders = httpWebResponse.Headers
+                Using httpInStream As New StreamReader(httpWebResponse.GetResponseStream())
+                    Dim httpTextOutput As String = httpInStream.ReadToEnd.Trim()
+                    httpResponseHeaders = httpWebResponse.Headers
 
-            httpInStream.Close()
-            httpInStream.Dispose()
+                    httpResponseText = ConvertLineFeeds(httpTextOutput).Trim()
 
-            httpWebResponse.Close()
-            httpWebResponse.Dispose()
-
-            httpResponseText = ConvertLineFeeds(httpTextOutput).Trim()
-
-            Return True
+                    Return True
+                End Using
+            End Using
         Catch ex As Exception
             If ex.GetType.Equals(GetType(Threading.ThreadAbortException)) Then
                 If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
@@ -1240,22 +1236,18 @@ beginAgain:
             AddParametersToWebRequest(httpWebRequest)
             AddPostDataToWebRequest(httpWebRequest)
 
-            Dim httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
-            CaptureSSLInfo(url, httpWebRequest)
+            Using httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
+                CaptureSSLInfo(url, httpWebRequest)
 
-            Dim httpInStream As New StreamReader(httpWebResponse.GetResponseStream())
-            Dim httpTextOutput As String = httpInStream.ReadToEnd.Trim()
-            httpResponseHeaders = httpWebResponse.Headers
+                Using httpInStream As New StreamReader(httpWebResponse.GetResponseStream())
+                    Dim httpTextOutput As String = httpInStream.ReadToEnd.Trim()
+                    httpResponseHeaders = httpWebResponse.Headers
 
-            httpInStream.Close()
-            httpInStream.Dispose()
+                    httpResponseText = ConvertLineFeeds(httpTextOutput).Trim()
 
-            httpWebResponse.Close()
-            httpWebResponse.Dispose()
-
-            httpResponseText = ConvertLineFeeds(httpTextOutput).Trim()
-
-            Return True
+                    Return True
+                End Using
+            End Using
         Catch ex As Exception
             If ex.GetType.Equals(GetType(Threading.ThreadAbortException)) Then
                 If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
@@ -1332,68 +1324,63 @@ beginAgain:
             httpWebRequest.Method = "POST"
 
             If postData.Count <> 0 Then
-                Dim httpRequestWriter As Stream = httpWebRequest.GetRequestStream()
-                Dim header As String, fileInfo As FileInfo, formFileObjectInstance As FormFile
-                Dim bytes As Byte(), buffer As Byte(), fileStream As FileStream, data As String
+                Using httpRequestWriter As Stream = httpWebRequest.GetRequestStream()
+                    Dim header As String, fileInfo As FileInfo, formFileObjectInstance As FormFile
+                    Dim bytes As Byte(), buffer As Byte(), fileStream As FileStream, data As String
 
-                For Each entry As KeyValuePair(Of String, Object) In postData
-                    httpRequestWriter.Write(boundaryBytes, 0, boundaryBytes.Length)
+                    For Each entry As KeyValuePair(Of String, Object) In postData
+                        httpRequestWriter.Write(boundaryBytes, 0, boundaryBytes.Length)
 
-                    If TypeOf entry.Value Is FormFile Then
-                        formFileObjectInstance = DirectCast(entry.Value, FormFile)
+                        If TypeOf entry.Value Is FormFile Then
+                            formFileObjectInstance = DirectCast(entry.Value, FormFile)
 
-                        If String.IsNullOrEmpty(formFileObjectInstance.RemoteFileName) Then
-                            fileInfo = New FileInfo(formFileObjectInstance.LocalFilePath)
+                            If String.IsNullOrEmpty(formFileObjectInstance.RemoteFileName) Then
+                                fileInfo = New FileInfo(formFileObjectInstance.LocalFilePath)
 
-                            header = $"Content-Disposition: form-data; name=""{entry.Key}""; filename=""{fileInfo.Name}"""
-                            header &= $"{vbCrLf}Content-Type: {formFileObjectInstance.ContentType}{vbCrLf}{vbCrLf}"
+                                header = $"Content-Disposition: form-data; name=""{entry.Key}""; filename=""{fileInfo.Name}"""
+                                header &= $"{vbCrLf}Content-Type: {formFileObjectInstance.ContentType}{vbCrLf}{vbCrLf}"
+                            Else
+                                header = $"Content-Disposition: form-data; name=""{entry.Key}""; filename=""{formFileObjectInstance.RemoteFileName}"""
+                                header &= $"{vbCrLf}Content-Type: {formFileObjectInstance.ContentType}{vbCrLf}{vbCrLf}"
+                            End If
+
+                            bytes = Text.Encoding.UTF8.GetBytes(header)
+                            httpRequestWriter.Write(bytes, 0, bytes.Length)
+
+                            fileStream = New FileStream(formFileObjectInstance.LocalFilePath, FileMode.Open)
+                            buffer = New Byte(32768) {}
+
+                            While fileStream.Read(buffer, 0, buffer.Length) <> 0
+                                httpRequestWriter.Write(buffer, 0, buffer.Length)
+                            End While
+
+                            fileStream.Close()
+                            fileStream.Dispose()
+                            fileStream = Nothing
                         Else
-                            header = $"Content-Disposition: form-data; name=""{entry.Key}""; filename=""{formFileObjectInstance.RemoteFileName}"""
-                            header &= $"{vbCrLf}Content-Type: {formFileObjectInstance.ContentType}{vbCrLf}{vbCrLf}"
+                            data = $"Content-Disposition: form-data; name=""{entry.Key}""{vbCrLf}{vbCrLf}{entry.Value}"
+                            bytes = Text.Encoding.UTF8.GetBytes(data)
+                            httpRequestWriter.Write(bytes, 0, bytes.Length)
                         End If
+                    Next
 
-                        bytes = Text.Encoding.UTF8.GetBytes(header)
-                        httpRequestWriter.Write(bytes, 0, bytes.Length)
-
-                        fileStream = New FileStream(formFileObjectInstance.LocalFilePath, FileMode.Open)
-                        buffer = New Byte(32768) {}
-
-                        While fileStream.Read(buffer, 0, buffer.Length) <> 0
-                            httpRequestWriter.Write(buffer, 0, buffer.Length)
-                        End While
-
-                        fileStream.Close()
-                        fileStream.Dispose()
-                        fileStream = Nothing
-                    Else
-                        data = $"Content-Disposition: form-data; name=""{entry.Key}""{vbCrLf}{vbCrLf}{entry.Value}"
-                        bytes = Text.Encoding.UTF8.GetBytes(data)
-                        httpRequestWriter.Write(bytes, 0, bytes.Length)
-                    End If
-                Next
-
-                Dim trailer As Byte() = Text.Encoding.ASCII.GetBytes($"{vbCrLf}--{boundary}--{vbCrLf}")
-                httpRequestWriter.Write(trailer, 0, trailer.Length)
-                httpRequestWriter.Close()
-                httpRequestWriter.Dispose()
+                    Dim trailer As Byte() = Text.Encoding.ASCII.GetBytes($"{vbCrLf}--{boundary}--{vbCrLf}")
+                    httpRequestWriter.Write(trailer, 0, trailer.Length)
+                End Using
             End If
 
-            Dim httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
-            CaptureSSLInfo(url, httpWebRequest)
+            Using httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
+                CaptureSSLInfo(url, httpWebRequest)
 
-            Dim httpInStream As New StreamReader(httpWebResponse.GetResponseStream())
-            Dim httpTextOutput As String = httpInStream.ReadToEnd.Trim()
-            httpResponseHeaders = httpWebResponse.Headers
+                Using httpInStream As New StreamReader(httpWebResponse.GetResponseStream())
+                    Dim httpTextOutput As String = httpInStream.ReadToEnd.Trim()
+                    httpResponseHeaders = httpWebResponse.Headers
 
-            httpInStream.Close()
-            httpInStream.Dispose()
+                    httpResponseText = ConvertLineFeeds(httpTextOutput).Trim()
 
-            httpWebResponse.Close()
-            httpWebResponse.Dispose()
-
-            httpResponseText = ConvertLineFeeds(httpTextOutput).Trim()
-
-            Return True
+                    Return True
+                End Using
+            End Using
         Catch ex As Exception
             If ex.GetType.Equals(GetType(Threading.ThreadAbortException)) Then
                 If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
@@ -1444,10 +1431,9 @@ beginAgain:
             httpWebRequest.ContentType = "application/x-www-form-urlencoded"
             httpWebRequest.ContentLength = postDataString.Length
 
-            Dim httpRequestWriter = New StreamWriter(httpWebRequest.GetRequestStream())
-            httpRequestWriter.Write(postDataString)
-            httpRequestWriter.Close()
-            httpRequestWriter.Dispose()
+            Using httpRequestWriter = New StreamWriter(httpWebRequest.GetRequestStream())
+                httpRequestWriter.Write(postDataString)
+            End Using
         End If
     End Sub
 
