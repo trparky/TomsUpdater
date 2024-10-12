@@ -202,7 +202,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class HttpHelper
-    Private Const classVersion As String = "1.342"
+    Private Const classVersion As String = "1.343"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -466,7 +466,7 @@ Public Class HttpHelper
             End If
         End If
 
-            Return stringBuilder.ToString.Trim
+        Return stringBuilder.ToString.Trim
     End Function
 
     ''' <summary>Gets the remote file size.</summary>
@@ -990,8 +990,6 @@ beginAgain:
             End If
 
             Return False
-        Finally
-            memStream?.Dispose()
         End Try
     End Function
 
