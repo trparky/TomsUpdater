@@ -181,13 +181,6 @@ Module Module1
             Dim httpHelper As HttpHelper = CreateNewHTTPHelperObject()
             httpHelper.SetHTTPTimeout = 5
 
-            ColoredConsoleLineWriter("INFO:")
-            Console.Write($" Killing Process for {strProgramEXE}...")
-
-            SearchForProcessAndKillIt(strProgramEXE, False)
-
-            Console.WriteLine(" Done.")
-
             Dim RemoteFileStats As HttpHelper.RemoteFileStats = Nothing
 
             Try
@@ -227,6 +220,13 @@ Module Module1
                 Console.WriteLine(" Done.")
 
                 memoryStream.Position = 0
+
+                ColoredConsoleLineWriter("INFO:")
+                Console.Write($" Killing Process for {strProgramEXE}...")
+
+                SearchForProcessAndKillIt(strProgramEXE, False)
+
+                Console.WriteLine(" Done.")
 
                 ColoredConsoleLineWriter("INFO:")
                 Console.WriteLine(" Opening ZIP file for file extraction.")
