@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.68"
+    Private Const strVersionString As String = "1.69"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
     Private Const byteRoundFileSizes As Short = 2
@@ -259,7 +259,9 @@ Module Module1
                                             Console.Write($" Extracting and writing file ""{fileInZIP.Name}"" to ""{Path.Combine(strCurrentLocation, fileInZIP.Name)}""...")
 
                                             Try
-                                                extractedFiles.Add(fileInZIP.Name)
+                                                If fileInZIP.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) OrElse fileInZIP.Name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) Then
+                                                    extractedFiles.Add(fileInZIP.Name)
+                                                End If
 
                                                 Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
                                                     fileStream.SetLength(0)
