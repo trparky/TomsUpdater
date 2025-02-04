@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.69"
+    Private Const strVersionString As String = "1.70"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
     Private Const byteRoundFileSizes As Short = 2
@@ -13,31 +13,16 @@ Module Module1
     Private Sub RunNGEN(extractedFiles As Specialized.StringCollection)
         For Each strFileName As String In extractedFiles
             ColoredConsoleLineWriter("INFO:")
-            Console.Write($" Removing old .NET Cached Compiled Assembly for {strFileName}...")
-
-            Dim psi As New ProcessStartInfo With {
-                .UseShellExecute = True,
-                .FileName = Path.Combine(Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "ngen.exe"),
-                .Arguments = $"uninstall ""{strFileName}""",
-                .WindowStyle = ProcessWindowStyle.Hidden
-            }
-
-            Dim proc As Process = Process.Start(psi)
-            proc.WaitForExit()
-
-            Console.WriteLine(" Done.")
-
-            ColoredConsoleLineWriter("INFO:")
             Console.Write($" Installing new .NET Cached Compiled Assembly for {strFileName}...")
 
-            psi = New ProcessStartInfo With {
+            Dim psi As New ProcessStartInfo With {
                 .UseShellExecute = True,
                 .FileName = Path.Combine(Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "ngen.exe"),
                 .Arguments = $"install ""{strFileName}""",
                 .WindowStyle = ProcessWindowStyle.Hidden
             }
 
-            proc = Process.Start(psi)
+            Dim proc As Process = Process.Start(psi)
             proc.WaitForExit()
 
             Console.WriteLine(" Done.")
