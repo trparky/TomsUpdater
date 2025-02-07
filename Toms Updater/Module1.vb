@@ -99,31 +99,31 @@ Module Module1
             If Not String.IsNullOrWhiteSpace(strProgramCode) Then
                 strProgramCode = strProgramCode.Trim
 
-                If String.Equals(strProgramCode, "hasher", StringComparison.OrdinalIgnoreCase) Then
+                If strProgramCode.Equals("hasher", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Hasher.zip"
                     strProgramEXE = "Hasher.exe"
 
                     ColoredConsoleLineWriter("INFO:")
                     Console.WriteLine(" Updating Hasher.")
-                ElseIf String.Equals(strProgramCode, "simpleqr", StringComparison.OrdinalIgnoreCase) Then
+                ElseIf strProgramCode.Equals("simpleqr", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "SimpleQR.zip"
                     strProgramEXE = "SimpleQR.exe"
 
                     ColoredConsoleLineWriter("INFO:")
                     Console.WriteLine(" Updating SimpleQR.")
-                ElseIf String.Equals(strProgramCode, "startprogramewithnouac", StringComparison.OrdinalIgnoreCase) Then
+                ElseIf strProgramCode.Equals("startprogramewithnouac", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Start Program at Startup without UAC Prompt.zip"
                     strProgramEXE = "Start Program at Startup without UAC Prompt.exe"
 
                     ColoredConsoleLineWriter("INFO:")
                     Console.WriteLine(" Updating Start Program at Startup without UAC Prompt.")
-                ElseIf String.Equals(strProgramCode, "dnsoverhttps", StringComparison.OrdinalIgnoreCase) Then
+                ElseIf strProgramCode.Equals("dnsoverhttps", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "DNS Over HTTPS Well Known Servers.zip"
                     strProgramEXE = "DNS Over HTTPS Well Known Servers.exe"
 
                     ColoredConsoleLineWriter("INFO:")
                     Console.WriteLine(" Updating DNS Over HTTPS Well Known Servers.")
-                ElseIf String.Equals(strProgramCode, "freesyslog", StringComparison.OrdinalIgnoreCase) Then
+                ElseIf strProgramCode.Equals("freesyslog", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Free SysLog.zip"
                     strProgramEXE = "Free SysLog.exe"
 
