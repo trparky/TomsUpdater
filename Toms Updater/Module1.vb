@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.70"
+    Private Const strVersionString As String = "1.71"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
     Private Const byteRoundFileSizes As Short = 2
@@ -129,6 +129,12 @@ Module Module1
 
                     ColoredConsoleLineWriter("INFO:")
                     Console.WriteLine(" Updating Free SysLog.")
+                ElseIf strProgramCode.Equals("scheduledtaskscanner", StringComparison.OrdinalIgnoreCase) Then
+                    strZIPFile = "Scheduled Task Scanner.zip"
+                    strProgramEXE = "Scheduled Task Scanner.exe"
+
+                    ColoredConsoleLineWriter("INFO:")
+                    Console.WriteLine(" Scheduled Task Scanner.")
                 Else
                     ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
                     Console.WriteLine(" Invalid program code.")
