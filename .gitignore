@@ -362,8 +362,8 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-/hasher_update.xml.lnk
-/Compile Private Beta.bat
-/Compile this thing!.bat
-/AssemblyInfo.vb.lnk
-/Do GIT GC.ps1
+# Begin my stuff
+*.bat
+*.lnk
+*.ps1
+*.txt
