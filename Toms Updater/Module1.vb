@@ -249,11 +249,11 @@ Module Module1
                                             ColoredConsoleLineWriter("INFO:")
                                             Console.Write($" Extracting and writing file ""{fileInZIP.Name}"" to ""{Path.Combine(strCurrentLocation, fileInZIP.Name)}""...")
 
-                                            Try
-                                                If fileInZIP.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) OrElse fileInZIP.Name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) Then
-                                                    extractedFiles.Add(fileInZIP.Name)
-                                                End If
+                                            If fileInZIP.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) OrElse fileInZIP.Name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) Then
+                                                extractedFiles.Add(fileInZIP.Name)
+                                            End If
 
+                                            Try
                                                 Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
                                                     fileStream.SetLength(0)
                                                     zipFileMemoryStream.CopyTo(fileStream)
