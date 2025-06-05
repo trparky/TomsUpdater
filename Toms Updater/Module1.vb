@@ -253,24 +253,7 @@ Module Module1
                                                 extractedFiles.Add(fileInZIP.Name)
                                             End If
 
-                                            Try
-                                                Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
-                                                    fileStream.SetLength(0)
-                                                    zipFileMemoryStream.CopyTo(fileStream)
-                                                End Using
-
-                                                Console.WriteLine(" Done.")
-                                            Catch ex As IOException
-                                                Console.ForegroundColor = ConsoleColor.Red
-                                                Console.WriteLine(" Failed. An IOException occurred.")
-                                                Console.ResetColor()
-
-                                                ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
-                                                Console.Write(" An IOException occurred while extracting files from ZIP file. Update process aborted.")
-
-                                                Threading.Thread.Sleep(TimeSpan.FromSeconds(5).TotalMilliseconds)
-                                                Exit Sub
-                                            End Try
+                                            If Not WriteExtractedFileToDisk(strCurrentLocation, fileInZIP, zipFileMemoryStream) Then Exit Sub
                                         End If
                                     End Using
                                 End If
@@ -312,6 +295,30 @@ Module Module1
             Console.WriteLine("Program must be ran with a command line argument of --programcode=.")
         End If
     End Sub
+
+    Private Function WriteExtractedFileToDisk(strCurrentLocation As String, ByRef fileInZIP As Compression.ZipArchiveEntry, ByRef zipFileMemoryStream As MemoryStream) As Boolean
+        Try
+            Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
+                fileStream.SetLength(0)
+                zipFileMemoryStream.CopyTo(fileStream)
+            End Using
+
+            Console.WriteLine(" Done.")
+
+            Return True
+        Catch ex As IOException
+            Console.ForegroundColor = ConsoleColor.Red
+            Console.WriteLine(" Failed. An IOException occurred.")
+            Console.ResetColor()
+
+            ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
+            Console.Write(" An IOException occurred while extracting files from ZIP file. Update process aborted.")
+
+            Threading.Thread.Sleep(TimeSpan.FromSeconds(5).TotalMilliseconds)
+
+            Return False
+        End Try
+    End Function
 
     Private Function DoesProcessIDExist(PID As Integer, ByRef processObject As Process) As Boolean
         Try
