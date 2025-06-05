@@ -265,9 +265,6 @@ Module Module1
                                                 Console.WriteLine(" Failed. An IOException occurred.")
                                                 Console.ResetColor()
 
-                                                memoryStream.Close()
-                                                memoryStream.Dispose()
-
                                                 ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
                                                 Console.Write(" An IOException occurred while extracting files from ZIP file. Update process aborted.")
 
@@ -284,9 +281,6 @@ Module Module1
                     ColoredConsoleLineWriter("INFO:")
                     Console.WriteLine(" Closing ZIP file.")
                 Catch ex As InvalidDataException
-                    memoryStream.Close()
-                    memoryStream.Dispose()
-
                     ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
                     Console.Write(" An InvalidDataException occurred while extracting files from ZIP file. Update process aborted.")
 
