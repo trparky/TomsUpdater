@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.72"
+    Private Const strVersionString As String = "1.73"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
     Private Const byteRoundFileSizes As Short = 2
@@ -125,6 +125,12 @@ Module Module1
                     Console.WriteLine(" Updating DNS Over HTTPS Well Known Servers.")
                 ElseIf strProgramCode.Equals("freesyslog", StringComparison.OrdinalIgnoreCase) Then
                     strZIPFile = "Free SysLog.zip"
+                    strProgramEXE = "Free SysLog.exe"
+
+                    ColoredConsoleLineWriter("INFO:")
+                    Console.WriteLine(" Updating Free SysLog.")
+                ElseIf strProgramCode.Equals("freesyslognet", StringComparison.OrdinalIgnoreCase) Then
+                    strZIPFile = "Free SysLog.net.zip"
                     strProgramEXE = "Free SysLog.exe"
 
                     ColoredConsoleLineWriter("INFO:")
