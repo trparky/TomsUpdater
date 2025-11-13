@@ -205,7 +205,7 @@ Public Delegate Sub CustomErrorHandlerDelegate(ex As Exception, thisInstance As 
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class HttpHelper
-    Private Const classVersion As String = "1.347"
+    Private Const classVersion As String = "1.348"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -1387,7 +1387,11 @@ beginAgain:
     End Function
 
     Private Sub CaptureSSLInfo(url As String, ByRef httpWebRequest As Net.HttpWebRequest)
-        sslCertificate = If(url.StartsWith("https://", StringComparison.OrdinalIgnoreCase), New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate), Nothing)
+        If httpWebRequest.ServicePoint.Certificate Is Nothing Then
+            sslCertificate = Nothing
+        Else
+            sslCertificate = If(url.StartsWith("https://", StringComparison.OrdinalIgnoreCase), New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate), Nothing)
+        End If
     End Sub
 
     Private Sub AddPostDataToWebRequest(ByRef httpWebRequest As Net.HttpWebRequest)
