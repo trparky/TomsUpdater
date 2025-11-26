@@ -529,7 +529,7 @@ Module Module1
         ElseIf size > (2 ^ 50) And size <= (2 ^ 60) Then
             result = $"{MyRoundingFunction(size / (2 ^ 50), shortRoundNumber)} PBs"
         ElseIf size > (2 ^ 60) And size <= (2 ^ 70) Then
-            result = $"{MyRoundingFunction(size / (2 ^ 50), shortRoundNumber)} EBs"
+            result = $"{MyRoundingFunction(size / (2 ^ 60), shortRoundNumber)} EBs"
         Else
             result = "(None)"
         End If
