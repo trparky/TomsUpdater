@@ -205,7 +205,7 @@ Public Delegate Sub CustomErrorHandlerDelegate(ex As Exception, thisInstance As 
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class HttpHelper
-    Private Const classVersion As String = "1.348"
+    Private Const classVersion As String = "1.349"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -1524,7 +1524,7 @@ beginAgain:
         ElseIf size > (2 ^ 40) And size <= (2 ^ 50) Then
             result = $"{Math.Round(size / (2 ^ 40), shortRoundNumber)} TBs"
         ElseIf size > (2 ^ 50) And size <= (2 ^ 60) Then
-            result = $"{Math.Round(size / (2 ^ 50), shortRoundNumber)} PBs"
+            result = $"{Math.Round(size / (2 ^ 60), shortRoundNumber)} PBs"
         Else
             result = "(None)"
         End If
