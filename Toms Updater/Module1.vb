@@ -415,32 +415,25 @@ Module Module1
 
     Private Function GetFullOSVersionString() As String
         Try
-            Dim intOSMajorVersion As Integer = Environment.OSVersion.Version.Major
-            Dim intOSMinorVersion As Integer = Environment.OSVersion.Version.Minor
-            Dim dblDOTNETVersion As Double = Double.Parse($"{Environment.Version.Major}.{Environment.Version.Minor}")
+            Dim osVersion As Version = Environment.OSVersion.Version
+            Dim intOSMajorVersion As Integer = osVersion.Major
+            Dim intOSMinorVersion As Integer = osVersion.Minor
+            Dim strDotNetVersion As String = $"{Environment.Version.Major}.{Environment.Version.Minor}"
             Dim strOSName As String
 
-            If intOSMajorVersion = 5 And intOSMinorVersion = 0 Then
-                strOSName = "Windows 2000"
-            ElseIf intOSMajorVersion = 5 And intOSMinorVersion = 1 Then
-                strOSName = "Windows XP"
-            ElseIf intOSMajorVersion = 6 And intOSMinorVersion = 0 Then
-                strOSName = "Windows Vista"
-            ElseIf intOSMajorVersion = 6 And intOSMinorVersion = 1 Then
+            If intOSMajorVersion = 6 And intOSMinorVersion = 1 Then
                 strOSName = "Windows 7"
             ElseIf intOSMajorVersion = 6 And intOSMinorVersion = 2 Then
                 strOSName = "Windows 8"
             ElseIf intOSMajorVersion = 6 And intOSMinorVersion = 3 Then
                 strOSName = "Windows 8.1"
-            ElseIf intOSMajorVersion = 10 Then
-                strOSName = "Windows 10"
-            ElseIf intOSMajorVersion = 11 Then
-                strOSName = "Windows 11"
+			ElseIf intOSMajorVersion = 10 Then
+                strOSName = $"Windows {If(osVersion.Build >= 22000, "11", "10")}"
             Else
                 strOSName = $"Windows NT {intOSMajorVersion}.{intOSMinorVersion}"
             End If
 
-            Return $"{strOSName} {If(Environment.Is64BitOperatingSystem, "64", "32")}-bit (Microsoft .NET {dblDOTNETVersion })"
+            Return $"{strOSName} {If(Environment.Is64BitOperatingSystem, "64", "32")}-bit (Microsoft .NET {strDotNetVersion})"
         Catch ex As Exception
             Try
                 Return $"Unknown Windows Operating System ({Environment.OSVersion.VersionString})"
