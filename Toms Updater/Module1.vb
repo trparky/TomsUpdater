@@ -4,7 +4,7 @@ Imports System.Security.Principal
 Imports System.Text.RegularExpressions
 
 Module Module1
-    Private Const strVersionString As String = "1.75"
+    Private Const strVersionString As String = "1.75.1"
     Private Const strMessageBoxTitleText As String = "Tom's Updater"
     Private Const strBaseURL As String = "https://www.toms-world.org/download/"
     Private Const byteRoundFileSizes As Short = 2
@@ -147,7 +147,7 @@ Module Module1
             End If
 
             ColoredConsoleLineWriter("INFO:")
-            Console.Write($" Checking to see if we can write to the current location ({strCurrentLocation})...")
+            Console.Write($" Checking to see if we can write to the current location ({strCurrentLocation.TrimEnd("\")})...")
 
             If Not CheckFolderPermissionsByACLs(strCurrentLocation) Then
                 Console.ForegroundColor = ConsoleColor.Red
