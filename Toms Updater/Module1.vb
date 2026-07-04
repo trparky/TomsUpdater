@@ -222,7 +222,7 @@ Module Module1
                 ColoredConsoleLineWriter("INFO:")
                 Console.WriteLine(" Opening ZIP file for file extraction.")
 
-                Dim strLocalFileHash, strHashOfFileInZIP As String
+                Dim strLocalFileHash, strHashOfFileInZIP, strDestinationPath As String
 
                 Try
                     Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
@@ -231,32 +231,47 @@ Module Module1
                             Console.WriteLine(" No files found in ZIP file, possible corrupt ZIP file.")
                         Else
                             For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
-                                If fileInZIP IsNot Nothing Then
-                                    Using zipFileMemoryStream As New MemoryStream
-                                        fileInZIP.Open.CopyTo(zipFileMemoryStream)
+                                If fileInZIP Is Nothing Then Continue For
+                                If String.IsNullOrEmpty(fileInZIP.Name) Then Continue For
 
-                                        zipFileMemoryStream.Position = 0
+                                Using zipFileMemoryStream As New MemoryStream
+                                    Using zipArchiveStream As Stream = fileInZIP.Open()
+                                        zipArchiveStream.CopyTo(zipFileMemoryStream)
+                                    End Using
 
-                                        strLocalFileHash = GetFileHash(Path.Combine(strCurrentLocation, fileInZIP.Name))
+                                    zipFileMemoryStream.Position = 0
+                                    strDestinationPath = Path.GetFullPath(Path.Combine(strCurrentLocation, fileInZIP.FullName))
+
+                                    If strDestinationPath.StartsWith(strCurrentLocation, StringComparison.OrdinalIgnoreCase) Then
+                                        strLocalFileHash = String.Empty
+
+                                        If File.Exists(strDestinationPath) Then
+                                            strLocalFileHash = GetFileHash(strDestinationPath)
+                                        End If
+
                                         strHashOfFileInZIP = GetFileHash(zipFileMemoryStream)
 
                                         If strLocalFileHash.Equals(strHashOfFileInZIP, StringComparison.OrdinalIgnoreCase) Then
                                             ColoredConsoleLineWriter("INFO:")
-                                            Console.WriteLine($" Local file ""{fileInZIP.Name}"" is the same, there's no need to update it.")
+                                            Console.WriteLine($" Local file ""{fileInZIP.FullName}"" is the same, there's no need to update it.")
                                         Else
                                             zipFileMemoryStream.Position = 0
 
                                             ColoredConsoleLineWriter("INFO:")
-                                            Console.Write($" Extracting and writing file ""{fileInZIP.Name}"" to ""{Path.Combine(strCurrentLocation, fileInZIP.Name)}""...")
+                                            Console.Write($" Extracting and writing file ""{fileInZIP.FullName}"" to ""{strDestinationPath}""...")
 
                                             If fileInZIP.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) OrElse fileInZIP.Name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) Then
-                                                extractedFiles.Add(fileInZIP.Name)
+                                                extractedFiles.Add(strDestinationPath)
                                             End If
 
                                             If Not WriteExtractedFileToDisk(strCurrentLocation, fileInZIP, zipFileMemoryStream) Then Exit Sub
                                         End If
-                                    End Using
-                                End If
+                                    Else
+                                        ColoredConsoleLineWriter("ERROR:")
+                                        Console.WriteLine($" ZIP entry ""{fileInZIP.FullName}"" points outside the extraction directory.")
+                                        Exit Sub
+                                    End If
+                                End Using
                             Next
                         End If
                     End Using
@@ -298,7 +313,13 @@ Module Module1
 
     Private Function WriteExtractedFileToDisk(strCurrentLocation As String, ByRef fileInZIP As Compression.ZipArchiveEntry, ByRef zipFileMemoryStream As MemoryStream) As Boolean
         Try
-            Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
+            Dim strDestinationPath As String = Path.GetDirectoryName(Path.Combine(strCurrentLocation, fileInZIP.FullName))
+
+            If Not Directory.Exists(strDestinationPath) Then
+                Directory.CreateDirectory(strDestinationPath)
+            End If
+
+            Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.FullName), FileMode.OpenOrCreate)
                 fileStream.SetLength(0)
                 zipFileMemoryStream.CopyTo(fileStream)
             End Using
