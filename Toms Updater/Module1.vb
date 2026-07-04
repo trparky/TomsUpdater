@@ -341,6 +341,7 @@ Module Module1
         If DoesProcessIDExist(processID, processObject) Then
             Try
                 processObject.Kill()
+                processObject.WaitForExit(5000) ' blocks until actually exited, or 5s safety timeout
             Catch ex As Exception
                 ' Wow, it seems that even with double-checking if a process exists by it's PID number things can still go wrong.
                 ' So this Try-Catch block is here to trap any possible errors when trying to kill a process by it's PID number.
