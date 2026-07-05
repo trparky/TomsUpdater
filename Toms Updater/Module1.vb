@@ -173,9 +173,11 @@ Module Module1
             httpHelper.SetHTTPTimeout = 5
 
             Dim RemoteFileStats As HttpHelper.RemoteFileStats = Nothing
+            Dim boolDidWeGetRemoteFileStats As Boolean = False
 
             Try
                 httpHelper.GetRemoteFileStats(strCombinedZIPFileURL, RemoteFileStats, True)
+                boolDidWeGetRemoteFileStats = True
             Catch ex As Exception
                 ' Do nothing
             End Try
@@ -183,10 +185,10 @@ Module Module1
             Using memoryStream As New MemoryStream()
                 ColoredConsoleLineWriter("INFO:")
 
-                If RemoteFileStats.contentLength = 0 Then
-                    Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}""...")
-                Else
+                If boolDidWeGetRemoteFileStats AndAlso RemoteFileStats.contentLength = 0 Then
                     Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}"" (File Size: {FileSizeToHumanSize(RemoteFileStats.contentLength)}, Last Modified: {Date.Parse(RemoteFileStats.headers("Last-Modified")).ToLocalTime})...")
+                Else
+                    Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}""...")
                 End If
 
                 If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
