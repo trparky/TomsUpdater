@@ -234,14 +234,15 @@ Module Module1
                                 If fileInZIP Is Nothing Then Continue For
                                 If String.IsNullOrEmpty(fileInZIP.Name) Then Continue For
 
-                                    Using zipFileMemoryStream As New MemoryStream
-                                        Using zipArchiveStream As Stream = fileInZIP.Open()
-                                            zipArchiveStream.CopyTo(zipFileMemoryStream)
-                                        End Using
+                                Using zipFileMemoryStream As New MemoryStream
+                                    Using zipArchiveStream As Stream = fileInZIP.Open()
+                                        zipArchiveStream.CopyTo(zipFileMemoryStream)
+                                    End Using
 
-                                        zipFileMemoryStream.Position = 0
-                                        strDestinationPath = Path.GetFullPath(Path.Combine(strCurrentLocation, fileInZIP.FullName))
+                                    zipFileMemoryStream.Position = 0
+                                    strDestinationPath = Path.GetFullPath(Path.Combine(strCurrentLocation, fileInZIP.FullName))
 
+                                    If strDestinationPath.StartsWith(strCurrentLocation, StringComparison.OrdinalIgnoreCase) Then
                                         strLocalFileHash = String.Empty
 
                                         If File.Exists(strDestinationPath) Then
@@ -265,8 +266,12 @@ Module Module1
 
                                             If Not WriteExtractedFileToDisk(strCurrentLocation, fileInZIP, zipFileMemoryStream) Then Exit Sub
                                         End If
-                                    End Using
-                                End If
+                                    Else
+                                        ColoredConsoleLineWriter("ERROR:")
+                                        Console.WriteLine($" ZIP entry ""{fileInZIP.FullName}"" points outside the extraction directory.")
+                                        Exit Sub
+                                    End If
+                                End Using
                             Next
                         End If
                     End Using
