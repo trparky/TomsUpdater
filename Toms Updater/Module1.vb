@@ -231,7 +231,9 @@ Module Module1
                             Console.WriteLine(" No files found in ZIP file, possible corrupt ZIP file.")
                         Else
                             For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
-                                If fileInZIP IsNot Nothing Then
+                                If fileInZIP Is Nothing Then Continue For
+                                If String.IsNullOrEmpty(fileInZIP.Name) Then Continue For
+
                                     Using zipFileMemoryStream As New MemoryStream
                                         Using zipArchiveStream As Stream = fileInZIP.Open()
                                             zipArchiveStream.CopyTo(zipFileMemoryStream)
