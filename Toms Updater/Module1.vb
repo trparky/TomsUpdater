@@ -313,6 +313,12 @@ Module Module1
 
     Private Function WriteExtractedFileToDisk(strCurrentLocation As String, ByRef fileInZIP As Compression.ZipArchiveEntry, ByRef zipFileMemoryStream As MemoryStream) As Boolean
         Try
+            Dim strDestinationPath As String = Path.GetDirectoryName(Path.Combine(strCurrentLocation, fileInZIP.FullName))
+
+            If Not Directory.Exists(strDestinationPath) Then
+                Directory.CreateDirectory(strDestinationPath)
+            End If
+
             Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.FullName), FileMode.OpenOrCreate)
                 fileStream.SetLength(0)
                 zipFileMemoryStream.CopyTo(fileStream)
