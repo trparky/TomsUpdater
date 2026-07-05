@@ -182,7 +182,7 @@ Module Module1
                 ' Do nothing
             End Try
 
-            Using memoryStream As New MemoryStream()
+            Using memoryStreamWithContentsFromTheWeb As New MemoryStream()
                 ColoredConsoleLineWriter("INFO:")
 
                 If boolDidWeGetRemoteFileStats AndAlso RemoteFileStats.contentLength = 0 Then
@@ -191,7 +191,7 @@ Module Module1
                     Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}""...")
                 End If
 
-                If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStream, False) Then
+                If Not httpHelper.DownloadFile(strCombinedZIPFileURL, memoryStreamWithContentsFromTheWeb, False) Then
                     Console.ForegroundColor = ConsoleColor.Red
                     Console.WriteLine(" Something went wrong, update process aborted.")
                     Console.ResetColor()
@@ -203,7 +203,7 @@ Module Module1
                 ColoredConsoleLineWriter("INFO:")
                 Console.Write($" Verifying ZIP package file ""{strZIPFile}""...")
 
-                If Not VerifyChecksum(programZipFileSHA256URL, memoryStream, httpHelper) Then
+                If Not VerifyChecksum(programZipFileSHA256URL, memoryStreamWithContentsFromTheWeb, httpHelper) Then
                     Console.ForegroundColor = ConsoleColor.Red
                     Console.WriteLine(" Something went wrong, verification failed; update process aborted.")
                     Console.ResetColor()
@@ -212,7 +212,7 @@ Module Module1
 
                 Console.WriteLine(" Done.")
 
-                memoryStream.Position = 0
+                memoryStreamWithContentsFromTheWeb.Position = 0
 
                 ColoredConsoleLineWriter("INFO:")
                 Console.Write($" Killing Process for {strProgramEXE}...")
@@ -227,7 +227,7 @@ Module Module1
                 Dim strLocalFileHash, strHashOfFileInZIP, strDestinationPath As String
 
                 Try
-                    Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
+                    Using zipFileObject As New Compression.ZipArchive(memoryStreamWithContentsFromTheWeb, Compression.ZipArchiveMode.Read)
                         If zipFileObject.Entries.Count = 0 Then
                             ColoredConsoleLineWriter("ERROR:", ConsoleColor.Red)
                             Console.WriteLine(" No files found in ZIP file, possible corrupt ZIP file.")
@@ -236,12 +236,12 @@ Module Module1
                                 If fileInZIP Is Nothing Then Continue For
                                 If String.IsNullOrEmpty(fileInZIP.Name) Then Continue For
 
-                                Using zipFileMemoryStream As New MemoryStream
-                                    Using zipArchiveStream As Stream = fileInZIP.Open()
-                                        zipArchiveStream.CopyTo(zipFileMemoryStream)
+                                Using workingMemoryStream As New MemoryStream
+                                    Using contentsOfFileFromZIPFileStream As Stream = fileInZIP.Open()
+                                        contentsOfFileFromZIPFileStream.CopyTo(workingMemoryStream)
                                     End Using
 
-                                    zipFileMemoryStream.Position = 0
+                                    workingMemoryStream.Position = 0
                                     strDestinationPath = Path.GetFullPath(Path.Combine(strCurrentLocation, fileInZIP.FullName))
 
                                     If strDestinationPath.StartsWith(strCurrentLocation, StringComparison.OrdinalIgnoreCase) Then
@@ -251,13 +251,13 @@ Module Module1
                                             strLocalFileHash = GetFileHash(strDestinationPath)
                                         End If
 
-                                        strHashOfFileInZIP = GetFileHash(zipFileMemoryStream)
+                                        strHashOfFileInZIP = GetFileHash(workingMemoryStream)
 
                                         If strLocalFileHash.Equals(strHashOfFileInZIP, StringComparison.OrdinalIgnoreCase) Then
                                             ColoredConsoleLineWriter("INFO:")
                                             Console.WriteLine($" Local file ""{fileInZIP.FullName}"" is the same, there's no need to update it.")
                                         Else
-                                            zipFileMemoryStream.Position = 0
+                                            workingMemoryStream.Position = 0
 
                                             ColoredConsoleLineWriter("INFO:")
                                             Console.Write($" Extracting and writing file ""{fileInZIP.FullName}"" to ""{strDestinationPath}""...")
@@ -266,7 +266,7 @@ Module Module1
                                                 extractedFiles.Add(strDestinationPath)
                                             End If
 
-                                            If Not WriteExtractedFileToDisk(strCurrentLocation, fileInZIP, zipFileMemoryStream) Then Exit Sub
+                                            If Not WriteExtractedFileToDisk(strCurrentLocation, fileInZIP, workingMemoryStream) Then Exit Sub
                                         End If
                                     Else
                                         ColoredConsoleLineWriter("ERROR:")
