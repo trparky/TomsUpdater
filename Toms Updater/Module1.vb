@@ -351,13 +351,6 @@ Module Module1
     End Function
 
     Private Sub KillProcess(processID As Integer)
-        KillProcessSubRoutine(processID)
-        Threading.Thread.Sleep(250) ' We're going to sleep to give the system some time to kill the process.
-        KillProcessSubRoutine(processID)
-        Threading.Thread.Sleep(250) ' We're going to sleep (again) to give the system some time to kill the process.
-    End Sub
-
-    Private Sub KillProcessSubRoutine(processID As Integer)
         Dim processObject As Process = Nothing
         If DoesProcessIDExist(processID, processObject) Then
             Try
