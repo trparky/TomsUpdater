@@ -149,7 +149,7 @@ Module Module1
             ColoredConsoleLineWriter("INFO:")
             Console.Write($" Checking to see if we can write to the current location ({strCurrentLocation.TrimEnd("\")})...")
 
-            If Not CheckFolderPermissionsByACLs(strCurrentLocation) Then
+            If Not CanIWriteThere(strCurrentLocation) Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine(" No. Restarting with admin privileges.")
                 Console.ResetColor()
@@ -502,25 +502,34 @@ Module Module1
         End Using
     End Function
 
-    Private Function CheckFolderPermissionsByACLs(folderPath As String) As Boolean
+    Private Function CanIWriteThere(folderPath As String) As Boolean
+        ' We make sure we get valid folder path by taking off the leading slash.
+        If folderPath.EndsWith("\") Then folderPath = folderPath.Substring(0, folderPath.Length - 1)
+        If String.IsNullOrEmpty(folderPath) OrElse Not Directory.Exists(folderPath) Then Return False
+
         Try
-            Dim directoryACLs As DirectorySecurity = Directory.GetAccessControl(folderPath)
-            Dim directoryAccessRights As FileSystemAccessRule
+            Dim strOurTestFileName As String = Path.Combine(folderPath, "test" & RandomStringGenerator(10) & ".txt")
 
-            For Each rule As AuthorizationRule In directoryACLs.GetAccessRules(True, True, GetType(SecurityIdentifier))
-                If rule.IdentityReference.Value.Equals(WindowsIdentity.GetCurrent.User.Value, StringComparison.OrdinalIgnoreCase) Then
-                    directoryAccessRights = DirectCast(rule, FileSystemAccessRule)
+            File.Create(strOurTestFileName, 1, FileOptions.DeleteOnClose).Close()
 
-                    If directoryAccessRights.AccessControlType = AccessControlType.Allow AndAlso directoryAccessRights.FileSystemRights = (FileSystemRights.Read Or FileSystemRights.Modify Or FileSystemRights.Write Or FileSystemRights.FullControl) Then
-                        Return True
-                    End If
-                End If
-            Next
-
-            Return False
+            Return True
         Catch ex As Exception
             Return False
         End Try
+    End Function
+
+    Private Function RandomStringGenerator(length As Integer) As String
+        Dim random As New Random()
+        Dim builder As New Text.StringBuilder()
+        Dim ch As Char
+        Dim legalCharacters As String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
+
+        For cntr As Integer = 0 To length - 1
+            ch = legalCharacters.Substring(random.Next(0, legalCharacters.Length), 1)
+            builder.Append(ch)
+        Next
+
+        Return builder.ToString()
     End Function
 
     Private Function FileSizeToHumanSize(size As Long, Optional roundToNearestWholeNumber As Boolean = False) As String
