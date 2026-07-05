@@ -222,7 +222,7 @@ Module Module1
                 ColoredConsoleLineWriter("INFO:")
                 Console.WriteLine(" Opening ZIP file for file extraction.")
 
-                Dim strLocalFileHash, strHashOfFileInZIP As String
+                Dim strLocalFileHash, strHashOfFileInZIP, strDestinationPath As String
 
                 Try
                     Using zipFileObject As New Compression.ZipArchive(memoryStream, Compression.ZipArchiveMode.Read)
@@ -236,21 +236,27 @@ Module Module1
                                         fileInZIP.Open.CopyTo(zipFileMemoryStream)
 
                                         zipFileMemoryStream.Position = 0
+                                        strDestinationPath = Path.GetFullPath(Path.Combine(strCurrentLocation, fileInZIP.FullName))
 
-                                        strLocalFileHash = GetFileHash(Path.Combine(strCurrentLocation, fileInZIP.Name))
+                                        strLocalFileHash = String.Empty
+
+                                        If File.Exists(strDestinationPath) Then
+                                            strLocalFileHash = GetFileHash(strDestinationPath)
+                                        End If
+
                                         strHashOfFileInZIP = GetFileHash(zipFileMemoryStream)
 
                                         If strLocalFileHash.Equals(strHashOfFileInZIP, StringComparison.OrdinalIgnoreCase) Then
                                             ColoredConsoleLineWriter("INFO:")
-                                            Console.WriteLine($" Local file ""{fileInZIP.Name}"" is the same, there's no need to update it.")
+                                            Console.WriteLine($" Local file ""{fileInZIP.FullName}"" is the same, there's no need to update it.")
                                         Else
                                             zipFileMemoryStream.Position = 0
 
                                             ColoredConsoleLineWriter("INFO:")
-                                            Console.Write($" Extracting and writing file ""{fileInZIP.Name}"" to ""{Path.Combine(strCurrentLocation, fileInZIP.Name)}""...")
+                                            Console.Write($" Extracting and writing file ""{fileInZIP.FullName}"" to ""{strDestinationPath}""...")
 
                                             If fileInZIP.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) OrElse fileInZIP.Name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) Then
-                                                extractedFiles.Add(fileInZIP.Name)
+                                                extractedFiles.Add(strDestinationPath)
                                             End If
 
                                             If Not WriteExtractedFileToDisk(strCurrentLocation, fileInZIP, zipFileMemoryStream) Then Exit Sub
@@ -298,7 +304,7 @@ Module Module1
 
     Private Function WriteExtractedFileToDisk(strCurrentLocation As String, ByRef fileInZIP As Compression.ZipArchiveEntry, ByRef zipFileMemoryStream As MemoryStream) As Boolean
         Try
-            Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.Name), FileMode.OpenOrCreate)
+            Using fileStream As New FileStream(Path.Combine(strCurrentLocation, fileInZIP.FullName), FileMode.OpenOrCreate)
                 fileStream.SetLength(0)
                 zipFileMemoryStream.CopyTo(fileStream)
             End Using
@@ -428,7 +434,7 @@ Module Module1
                 strOSName = "Windows 8"
             ElseIf intOSMajorVersion = 6 And intOSMinorVersion = 3 Then
                 strOSName = "Windows 8.1"
-			ElseIf intOSMajorVersion = 10 Then
+            ElseIf intOSMajorVersion = 10 Then
                 strOSName = $"Windows {If(osVersion.Build >= 22000, "11", "10")}"
             Else
                 strOSName = $"Windows NT {intOSMajorVersion}.{intOSMinorVersion}"
