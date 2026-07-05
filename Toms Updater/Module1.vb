@@ -233,7 +233,9 @@ Module Module1
                             For Each fileInZIP As Compression.ZipArchiveEntry In zipFileObject.Entries
                                 If fileInZIP IsNot Nothing Then
                                     Using zipFileMemoryStream As New MemoryStream
-                                        fileInZIP.Open.CopyTo(zipFileMemoryStream)
+                                        Using zipArchiveStream As Stream = fileInZIP.Open()
+                                            zipArchiveStream.CopyTo(zipFileMemoryStream)
+                                        End Using
 
                                         zipFileMemoryStream.Position = 0
                                         strDestinationPath = Path.GetFullPath(Path.Combine(strCurrentLocation, fileInZIP.FullName))
