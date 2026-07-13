@@ -203,7 +203,7 @@ Module Module1
                 ' This checks to see if we were able to get the remote file stats for the ZIP file we are downloading from the web.
                 ' If we were then we display the file size and last modified date of the ZIP file. If we weren't then we just
                 ' display that we're downloading the ZIP file.
-                If boolDidWeGetRemoteFileStats AndAlso RemoteFileStats.contentLength = 0 Then
+                If boolDidWeGetRemoteFileStats AndAlso RemoteFileStats.contentLength <> 0 Then
                     Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}"" (File Size: {FileSizeToHumanSize(RemoteFileStats.contentLength)}, Last Modified: {Date.Parse(RemoteFileStats.headers("Last-Modified")).ToLocalTime})...")
                 Else
                     Console.Write($" Downloading ZIP package file ""{strZIPFile}"" from ""{strCombinedZIPFileURL}""...")
