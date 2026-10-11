@@ -598,10 +598,7 @@ Module Module1
         If String.IsNullOrEmpty(folderPath) OrElse Not Directory.Exists(folderPath) Then Return False
 
         Try
-            Dim strOurTestFileName As String = Path.Combine(folderPath, "test" & RandomStringGenerator(10) & ".txt")
-
-            File.Create(strOurTestFileName, 1, FileOptions.DeleteOnClose).Close()
-
+            File.Create(Path.Combine(folderPath, "test" & RandomStringGenerator(10) & ".txt"), 1, FileOptions.DeleteOnClose).Close()
             Return True
         Catch ex As Exception
             Return False
